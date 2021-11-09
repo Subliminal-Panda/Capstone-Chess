@@ -1,0 +1,7 @@
+﻿.captured-zone {
+    width: calc((95vw - (95vmin - 150px)) / 2);
+    height: calc(95vh - 150px);
+    border: 2px solid blue;
+    display: grid;
+    justify-content: center;
+}
