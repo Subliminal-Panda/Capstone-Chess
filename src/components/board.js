@@ -1,10 +1,4 @@
 ﻿import React, { Component } from 'react';
-import Bishop from './pieces/bishop';
-import King from './pieces/king';
-import Knight from './pieces/knight';
-import Pawn from './pieces/pawn';
-import Queen from './pieces/queen';
-import Rook from './pieces/rook';
 import Square from './square';
 
 export default class Board extends Component {
@@ -87,7 +81,7 @@ export default class Board extends Component {
             const position = square[0];
             const values = square[1];
             return(
-                <Square addPiece={this.addPiece} key={position} position={position} data={values}/>
+                <Square key={position} position={position} values={values}/>
             )
         })
         return (

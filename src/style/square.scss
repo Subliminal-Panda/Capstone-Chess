@@ -5,5 +5,11 @@
 }
 
 .chess-piece {
-    font-size: 4.5rem;
+    font-size: 6rem;
+}
+
+.red-piece {
+    * {
+        color: $teal;
+    }
 }
