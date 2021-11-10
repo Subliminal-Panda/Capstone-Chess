@@ -8,9 +8,11 @@ export default class Pawn extends Piece {
     constructor(props) {
         super(props);
         this.state = {
-
+            whiteLocations: [],
+            blackLocations: [],
         }
     }
+
     render() {
         return (
             <Piece thisPiece={this.props}>

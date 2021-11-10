@@ -5,10 +5,10 @@
 }
 
 .chess-piece {
-    font-size: 6rem;
+    font-size: 7vmin;
 }
 
-.red-piece {
+.selected-piece {
     * {
         color: $teal;
     }

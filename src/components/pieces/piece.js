@@ -8,9 +8,15 @@ export default class Piece extends Component {
 
         }
     }
+
+    availableMoves() {
+        const moveTo = this.props.thisPiece.rank + 1
+        console.log(moveTo)
+    }
     render() {
         return (
             <div className="chess-piece" style={{color: this.props.thisPiece.team}}>
+                {console.log(this.props.thisPiece)}
                 {this.props.children}
             </div>
         )

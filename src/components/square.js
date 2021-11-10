@@ -17,9 +17,12 @@ export default class Square extends Component {
             occupied: '',
             selected: '',
             underAttack: [],
+            preserve: []
         }
         this.setBoard = this.setBoard.bind(this);
-        this.handleClick=this.handleClick.bind(this);
+        this.handleSelect=this.handleSelect.bind(this);
+        this.handleDeselect=this.handleDeselect.bind(this);
+        this.movePiece = this.movePiece.bind(this);
     }
 
     componentDidMount() {
@@ -31,65 +34,84 @@ export default class Square extends Component {
         const file = this.state.file
         if(rank === "2") {
             this.setState({
-                occupied: <Pawn team="white"/>
+                occupied: <Pawn rank={rank} file={file} team="white"/>
             })
         } else if(rank === "7") {
             this.setState({
-                occupied: <Pawn team="black"/>
+                occupied: <Pawn rank={rank} file={file} team="black"/>
             })
         } else if(rank ==="1") {
             if(file === "a" || file === "h") {
                 this.setState({
-                    occupied: <Rook team="white"/>
+                    occupied: <Rook rank={rank} file={file} team="white"/>
                 })
             } else if(file === "b" || file === "g") {
                 this.setState({
-                    occupied: <Knight team="white"/>
+                    occupied: <Knight rank={rank} file={file} team="white"/>
                 })
             } else if(file === "c" || file === "f") {
                 this.setState({
-                    occupied: <Bishop team="white"/>
+                    occupied: <Bishop rank={rank} file={file} team="white"/>
                 })
             } else if(file === "d") {
                 this.setState({
-                    occupied: <Queen team="white"/>
+                    occupied: <Queen rank={rank} file={file} team="white"/>
                 })
             } else if (file === "e") {
                 this.setState({
-                    occupied: <King team="white"/>
+                    occupied: <King rank={rank} file={file} team="white"/>
                 })
             }
         } else if(rank === "8") {
             if(file === "a" || file === "h") {
                 this.setState({
-                    occupied: <Rook team="black"/>
+                    occupied: <Rook rank={rank} file={file} team="black"/>
                 })
             } else if(file === "b" || file === "g") {
                 this.setState({
-                    occupied: <Knight team="black"/>
+                    occupied: <Knight rank={rank} file={file} team="black"/>
                 })
             } else if(file === "c" || file === "f") {
                 this.setState({
-                    occupied: <Bishop team="black"/>
+                    occupied: <Bishop rank={rank} file={file} team="black"/>
                 })
             } else if(file === "d") {
                 this.setState({
-                    occupied: <Queen team="black"/>
+                    occupied: <Queen rank={rank} file={file} team="black"/>
                 })
             } else if (file === "e") {
                 this.setState({
-                    occupied: <King team="black"/>
+                    occupied: <King rank={rank} file={file} team="black"/>
                 })
             }
         }
     }
 
-    handleClick() {
-        const files = ["a","b","c","d","e","f","g","h"]
+    movePiece(num) {
         const ranks = ["1","2","3","4","5","6","7","8"]
+        const files = ["a","b","c","d","e","f","g","h"]
+        for(let i=0; i<ranks.length; i++) {
+            if(this.state.rank === ranks[i]) {
+                this.setState({
+                    occupied: "",
+                })
+                //pass rank & file state to parent, then to sibling!!
+            }
+        }
+    }
+
+    handleSelect() {
         if (this.state.occupied) {
             this.setState({
                 selected: true,
+            })
+        }
+    }
+
+    handleDeselect() {
+        if (this.state.occupied) {
+            this.setState({
+                selected: false,
             })
         }
     }
@@ -98,10 +120,12 @@ export default class Square extends Component {
     render() {
         return (
             <div
-            onClick={this.handleClick}
+            onMouseEnter={this.handleSelect}
+            onMouseLeave={this.handleDeselect}
+            onClick={() => this.movePiece(2)}
             key={`${this.state.file}-${this.state.rank}`}
             style={this.state.style}
-            className={ this.state.selected ? "red-piece square" : "square" } >
+            className={ this.state.selected ? "selected-piece square" : "square" } >
                 {this.state.occupied}
             </div>
         )

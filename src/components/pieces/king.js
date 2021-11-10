@@ -8,6 +8,7 @@ export default class King extends Piece {
     constructor(props) {
         super(props);
         this.state = {
+
         }
     }
     render() {
