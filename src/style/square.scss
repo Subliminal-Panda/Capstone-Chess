@@ -1,15 +1,28 @@
 ﻿.square {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    height: 100%;
+    width: 100%;
+    h2 {
+        margin: 0 .5rem;
+    }
 }
 
 .chess-piece {
     font-size: 7vmin;
+    position: relative;
+    align-self: center;
+    justify-self: center;
 }
 
 .selected-piece {
     * {
         color: $teal;
     }
+}
+
+.ghost {
+    font-size: 7vmin;
+    position: relative;
+    align-self: center;
+    justify-self: center;
+    color: $blue;
 }

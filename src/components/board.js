@@ -1,93 +1,124 @@
-﻿import React, { Component } from 'react';
-import Square from './square';
+﻿import React from 'react';
+import Square from './Square';
+import King from './pieces/king';
+import Queen from './pieces/queen';
+import Rook from './pieces/rook';
+import Bishop from './pieces/bishop';
+import Knight from './pieces/knight';
+import Pawn from './pieces/pawn';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
 
-export default class Board extends Component {
+export default function Board (props) {
 
-    constructor(props) {
-        super(props);
-        let dark = "rgb(90, 90, 90)";
-        let light = "rgb(175, 175, 175)";
-        this.state = {
-            a8: {style: {backgroundColor: light}, rank: "8", file: "a", },
-            b8: {style: {backgroundColor: dark}, rank: "8", file: "b", },
-            c8: {style: {backgroundColor: light}, rank: "8", file: "c", },
-            d8: {style: {backgroundColor: dark}, rank: "8", file: "d", },
-            e8: {style: {backgroundColor: light}, rank: "8", file: "e", },
-            f8: {style: {backgroundColor: dark}, rank: "8", file: "f", },
-            g8: {style: {backgroundColor: light}, rank: "8", file: "g", },
-            h8: {style: {backgroundColor: dark}, rank: "8", file: "h", },
-            a7: {style: {backgroundColor: dark}, rank: "7", file: "a", },
-            b7: {style: {backgroundColor: light}, rank: "7", file: "b", },
-            c7: {style: {backgroundColor: dark}, rank: "7", file: "c", },
-            d7: {style: {backgroundColor: light}, rank: "7", file: "d", },
-            e7: {style: {backgroundColor: dark}, rank: "7", file: "e", },
-            f7: {style: {backgroundColor: light}, rank: "7", file: "f", },
-            g7: {style: {backgroundColor: dark}, rank: "7", file: "g", },
-            h7: {style: {backgroundColor: light}, rank: "7", file: "h", },
-            a6: {style: {backgroundColor: light}, rank: "6", file: "a", },
-            b6: {style: {backgroundColor: dark}, rank: "6", file: "b", },
-            c6: {style: {backgroundColor: light}, rank: "6", file: "c", },
-            d6: {style: {backgroundColor: dark}, rank: "6", file: "d", },
-            e6: {style: {backgroundColor: light}, rank: "6", file: "e", },
-            f6: {style: {backgroundColor: dark}, rank: "6", file: "f", },
-            g6: {style: {backgroundColor: light}, rank: "6", file: "g", },
-            h6: {style: {backgroundColor: dark}, rank: "6", file: "h", },
-            a5: {style: {backgroundColor: dark}, rank: "5", file: "a", },
-            b5: {style: {backgroundColor: light}, rank: "5", file: "b", },
-            c5: {style: {backgroundColor: dark}, rank: "5", file: "c", },
-            d5: {style: {backgroundColor: light}, rank: "5", file: "d", },
-            e5: {style: {backgroundColor: dark}, rank: "5", file: "e", },
-            f5: {style: {backgroundColor: light}, rank: "5", file: "f", },
-            g5: {style: {backgroundColor: dark}, rank: "5", file: "g", },
-            h5: {style: {backgroundColor: light}, rank: "5", file: "h", },
-            a4: {style: {backgroundColor: light}, rank: "4", file: "a", },
-            b4: {style: {backgroundColor: dark}, rank: "4", file: "b", },
-            c4: {style: {backgroundColor: light}, rank: "4", file: "c", },
-            d4: {style: {backgroundColor: dark}, rank: "4", file: "d", },
-            e4: {style: {backgroundColor: light}, rank: "4", file: "e", },
-            f4: {style: {backgroundColor: dark}, rank: "4", file: "f", },
-            g4: {style: {backgroundColor: light}, rank: "4", file: "g", },
-            h4: {style: {backgroundColor: dark}, rank: "4", file: "h", },
-            a3: {style: {backgroundColor: dark}, rank: "3", file: "a", },
-            b3: {style: {backgroundColor: light}, rank: "3", file: "b", },
-            c3: {style: {backgroundColor: dark}, rank: "3", file: "c", },
-            d3: {style: {backgroundColor: light}, rank: "3", file: "d", },
-            e3: {style: {backgroundColor: dark}, rank: "3", file: "e", },
-            f3: {style: {backgroundColor: light}, rank: "3", file: "f", },
-            g3: {style: {backgroundColor: dark}, rank: "3", file: "g", },
-            h3: {style: {backgroundColor: light}, rank: "3", file: "h", },
-            a2: {style: {backgroundColor: light}, rank: "2", file: "a", },
-            b2: {style: {backgroundColor: dark}, rank: "2", file: "b", },
-            c2: {style: {backgroundColor: light}, rank: "2", file: "c", },
-            d2: {style: {backgroundColor: dark}, rank: "2", file: "d", },
-            e2: {style: {backgroundColor: light}, rank: "2", file: "e", },
-            f2: {style: {backgroundColor: dark}, rank: "2", file: "f", },
-            g2: {style: {backgroundColor: light}, rank: "2", file: "g", },
-            h2: {style: {backgroundColor: dark}, rank: "2", file: "h", },
-            a1: {style: {backgroundColor: dark}, rank: "1", file: "a", },
-            b1: {style: {backgroundColor: light}, rank: "1", file: "b", },
-            c1: {style: {backgroundColor: dark}, rank: "1", file: "c", },
-            d1: {style: {backgroundColor: light}, rank: "1", file: "d", },
-            e1: {style: {backgroundColor: dark}, rank: "1", file: "e", },
-            f1: {style: {backgroundColor: light}, rank: "1", file: "f", },
-            g1: {style: {backgroundColor: dark}, rank: "1", file: "g", },
-            h1: {style: {backgroundColor: light}, rank: "1", file: "h", },
-        }
+    const ranks = ["1","2","3","4","5","6","7","8"]
+    const files = ["a","b","c","d","e","f","g","h"]
+    const inPlay = []
+
+    const removeOld = (remove) => {
+        inPlay.forEach((element, index, array) => {
+            if(element[0].initFile === remove[0].initFile && element[0].initRank === remove[0].initRank) {
+                array.splice(index, 1)
+            }
+        } )
+    }
+
+    const placeNew = (placed) => {
+        inPlay.push(placed)
     }
 
 
-    render() {
-        const squares = Object.entries(this.state).map(square => {
-            const position = square[0];
-            const values = square[1];
-            return(
-                <Square key={position} position={position} values={values}/>
-            )
+
+    const makeGhosts = (availMoves) => {
+        console.log("moves for ghosts:", availMoves)
+        const ghosts = [];
+        availMoves.forEach((loc) => {
+
+                const ghostPosition = `${files[loc[0]]}${ranks[loc[1]]}`
+                console.log("ghost position:", ghostPosition)
+                ghosts.push(
+                    <Pawn
+                    key={ghostPosition}
+                    className="ghost"
+                    style={{
+                        gridArea: ghostPosition,
+                    }}
+                    />,
+                )
         })
-        return (
-            <div className="game-board">
-                {squares}
-            </div>
-        )
+        console.log("ghosts", ghosts)
+        return(ghosts);
     }
+
+    const makeSquares = () => {
+        const squares = []
+        for(let i=0; i<8; i++) {
+            for(let j=0; j<8; j++) {
+                let dark = "rgb(90, 90, 90)";
+                let light = "rgb(175, 175, 175)";
+                let rank = ranks[i];
+                let file = files[j];
+                let position = `${file}${rank}`;
+                let squareColor;
+                if((i + j + 2)%2 === 0) {
+                    squareColor = dark;
+                } else {
+                    squareColor = light;
+                }
+                squares.push(
+                    <Square
+                    key={position}
+                    squareColor={squareColor}
+                    rank={rank}
+                    file={file}
+                    position={position}
+                    />
+                )
+            }
+        }
+        return(squares);
+    }
+
+    const setBoard = () => {
+        const pieces = [];
+        for(let i=0; i<8; i++) {
+            pieces.push(
+                <Pawn makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}2`} team="white" initFile={i} initRank={1} />
+            );
+            pieces.push(
+                <Pawn makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}7`} team="black" initFile={i} initRank={6} />
+            );
+        };
+        pieces.push(
+            <Rook removeOld={removeOld} placeNew={placeNew} key="a8" team="black" initFile={0} initRank={7} />,
+            <Rook removeOld={removeOld} placeNew={placeNew} key="h8" team="black" initFile={7} initRank={7} />,
+            <Rook removeOld={removeOld} placeNew={placeNew} key="a1" team="white" initFile={0} initRank={0} />,
+            <Rook removeOld={removeOld} placeNew={placeNew} key="h1" team="white" initFile={7} initRank={0} />,
+            <Knight removeOld={removeOld} placeNew={placeNew} key="b8" team="black" initFile={1} initRank={7} />,
+            <Knight removeOld={removeOld} placeNew={placeNew} key="g8" team="black" initFile={6} initRank={7} />,
+            <Knight removeOld={removeOld} placeNew={placeNew} key="b1" team="white" initFile={1} initRank={0} />,
+            <Knight removeOld={removeOld} placeNew={placeNew} key="g1" team="white" initFile={6} initRank={0} />,
+            <Bishop removeOld={removeOld} placeNew={placeNew} key="c8" team="black" initFile={2} initRank={7} />,
+            <Bishop removeOld={removeOld} placeNew={placeNew} key="f8" team="black" initFile={5} initRank={7} />,
+            <Bishop removeOld={removeOld} placeNew={placeNew} key="c1" team="white" initFile={2} initRank={0} />,
+            <Bishop removeOld={removeOld} placeNew={placeNew} key="f1" team="white" initFile={5} initRank={0} />,
+            <King removeOld={removeOld} placeNew={placeNew} key="e8" team="black" initFile={4} initRank={7} />,
+            <Queen removeOld={removeOld} placeNew={placeNew} key="d8" team="black" initFile={3} initRank={7} />,
+            <King removeOld={removeOld} placeNew={placeNew} key="e1" team="white" initFile={4} initRank={0} />,
+            <Queen removeOld={removeOld} placeNew={placeNew} key="d1" team="white" initFile={3} initRank={0} />,
+        )
+        console.log("Board has been set.")
+        return pieces;
+    }
+
+
+
+    return (
+        <div onClick={() => console.log("pieces in play", inPlay)} className="game-board-wrap">
+            <div className="game-board">
+                {setBoard()}
+                {makeSquares()}
+            </div>
+        </div>
+    )
 }
