@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import Square from './Square';
 import King from './pieces/king';
 import Queen from './pieces/queen';
@@ -6,6 +6,7 @@ import Rook from './pieces/rook';
 import Bishop from './pieces/bishop';
 import Knight from './pieces/knight';
 import Pawn from './pieces/pawn';
+import Ghost from './ghost';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
 
@@ -14,6 +15,8 @@ export default function Board (props) {
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
     const inPlay = []
+    const [ghosts, setGhosts] = useState([])
+
 
     const removeOld = (remove) => {
         inPlay.forEach((element, index, array) => {
@@ -29,24 +32,22 @@ export default function Board (props) {
 
 
 
-    const makeGhosts = (availMoves) => {
+    const makeGhosts = (availMoves = []) => {
+        const newGhosts = []
         console.log("moves for ghosts:", availMoves)
-        const ghosts = [];
         availMoves.forEach((loc) => {
+                console.log("move location:", loc)
 
-                const ghostPosition = `${files[loc[0]]}${ranks[loc[1]]}`
+                const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 console.log("ghost position:", ghostPosition)
-                ghosts.push(
-                    <Pawn
-                    key={ghostPosition}
-                    className="ghost"
-                    style={{
-                        gridArea: ghostPosition,
-                    }}
-                    />,
-                )
+                newGhosts.push(<Ghost
+                    file={files[loc[0][0]]}
+                    rank={ranks[loc[1][0]]}
+                    position={ghostPosition}
+                />)
         })
-        console.log("ghosts", ghosts)
+        console.log("ghosts", newGhosts)
+        setGhosts([newGhosts])
         return(ghosts);
     }
 
@@ -107,15 +108,14 @@ export default function Board (props) {
             <King removeOld={removeOld} placeNew={placeNew} key="e1" team="white" initFile={4} initRank={0} />,
             <Queen removeOld={removeOld} placeNew={placeNew} key="d1" team="white" initFile={3} initRank={0} />,
         )
-        console.log("Board has been set.")
+        console.log("Board has been set. Pieces:", pieces)
         return pieces;
     }
-
-
 
     return (
         <div onClick={() => console.log("pieces in play", inPlay)} className="game-board-wrap">
             <div className="game-board">
+                {ghosts}
                 {setBoard()}
                 {makeSquares()}
             </div>

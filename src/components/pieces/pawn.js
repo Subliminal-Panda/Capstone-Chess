@@ -14,7 +14,7 @@ export default function Pawn (props) {
     const [ currentRank, setCurrentRank ] = useState(initRank)
     const [ currentFile, setCurrentFile ] = useState(initFile)
     const [ moved, setMoved ] = useState(false)
-    const availMoves = [[[currentFile],[currentRank + 1]],[[currentFile],[currentRank + 2]]];
+    const [availMoves, setAvailMoves] = useState([]);
 
     // const findAvailMoves = () => {
     //     if(team === "white" && currentRank < 7) {
@@ -34,6 +34,11 @@ export default function Pawn (props) {
 
     const handleHover = () => {
         setHover(true)
+        makeGhosts(availMoves)
+    }
+
+    const toggleEdit = () => {
+
     }
 
     const handleUnhover = () => {
@@ -56,13 +61,30 @@ export default function Pawn (props) {
         }
     }
 
+    const determineMoves = () => {
+        const usableMoves = []
+        if(team === "white" && currentRank === 1) {
+            usableMoves.push([[currentFile],[currentRank + 1]],[[currentFile],[currentRank + 2]])
+        } else if(team === "white" && currentRank < 7) {
+            usableMoves.push([[currentFile],[currentRank + 1]])
+
+        } else if(team === "black" && currentRank === 6) {
+            usableMoves.push([[currentFile],[currentRank - 1]],[[currentFile],[currentRank - 2]])
+        } else if(team === "black" && currentRank > 0) {
+            usableMoves.push([[currentFile],[currentRank - 1]])
+
+        }
+        setAvailMoves(usableMoves)
+    }
+
     useEffect(() => {
         placeNew([props, currentPosition]);
+        determineMoves();
     },[]);
 
     return (
         <FontAwesomeIcon
-        onClick={() => makeGhosts(availMoves)}
+        onClick={() => toggleEdit()}
         onMouseOver={() => handleHover()}
         onMouseOut={() => handleUnhover()}
         className={ hover ? "selected-piece chess-piece" : "chess-piece" }
