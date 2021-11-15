@@ -1,12 +1,14 @@
 ﻿import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
 
 export default function Ghost(props) {
-    const { file, rank, position } = props
+    const { file, rank, position, type, move, initposition, team } = props
 
     return (
         <FontAwesomeIcon
+
+        onClick={() => move(file, rank, position, initposition, type, team)}
+        initposition={initposition}
         key={position}
         rank={rank}
         file={file}
@@ -15,7 +17,7 @@ export default function Ghost(props) {
         style={{
             gridArea: `${position}`,
         }}
-        icon={ faChessPawn }
+        icon={ type }
         />
     )
 }

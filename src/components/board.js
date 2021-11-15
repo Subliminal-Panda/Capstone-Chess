@@ -1,20 +1,15 @@
 ﻿import React, { useEffect, useState } from 'react';
 import Square from './Square';
-import King from './pieces/king';
-import Queen from './pieces/queen';
-import Rook from './pieces/rook';
-import Bishop from './pieces/bishop';
-import Knight from './pieces/knight';
-import Pawn from './pieces/pawn';
+import Piece from './pieces/piece';
 import Ghost from './ghost';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChessPawn } from '@fortawesome/free-solid-svg-icons';
+import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
 
 export default function Board (props) {
 
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
     const inPlay = []
+    const [pieces, setPieces] = useState([]);
     const [ghosts, setGhosts] = useState([])
 
 
@@ -30,9 +25,21 @@ export default function Board (props) {
         inPlay.push(placed)
     }
 
+    const move = (file, rank, position, initPosition, type, team) => {
+        console.log("moved piece:", initPosition)
+        console.log("moved to:", [file, rank])
+        const newPieces = pieces
+        console.log("new pieces:", inPlay)
+        // newPieces.forEach((pc, idx, arr) => {
+        //     if(pc.props.initFile === initPosition[0] && pc.props.initRank === initPosition[1]) {
+        //         newPieces.splice(idx, 1);
+        //         newPieces.push(<Piece type={type} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[initPosition[0]]}${ranks[initPosition[1]]}`} team={team} initFile={initPosition[0]} initRank={initPosition[1]} />)
+        //     }
+        // })
+    }
 
 
-    const makeGhosts = (availMoves = []) => {
+    const makeGhosts = (availMoves = [], pieceType, initposition, team) => {
         const newGhosts = []
         console.log("moves for ghosts:", availMoves)
         availMoves.forEach((loc) => {
@@ -41,9 +48,13 @@ export default function Board (props) {
                 const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 console.log("ghost position:", ghostPosition)
                 newGhosts.push(<Ghost
-                    file={files[loc[0][0]]}
-                    rank={ranks[loc[1][0]]}
+                    team={team}
+                    initposition={initposition}
+                    move={move}
+                    file={loc[0][0]}
+                    rank={loc[1][0]}
                     position={ghostPosition}
+                    type={pieceType}
                 />)
         })
         console.log("ghosts", newGhosts)
@@ -81,42 +92,48 @@ export default function Board (props) {
     }
 
     const setBoard = () => {
-        const pieces = [];
+        const setup = []
         for(let i=0; i<8; i++) {
-            pieces.push(
-                <Pawn makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}2`} team="white" initFile={i} initRank={1} />
+            setup.push(
+                <Piece type={faChessPawn} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}2`} team="white" initFile={i} initRank={1} />
             );
-            pieces.push(
-                <Pawn makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}7`} team="black" initFile={i} initRank={6} />
+            setup.push(
+                <Piece type={faChessPawn} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key={`${files[i]}7`} team="black" initFile={i} initRank={6} />
             );
         };
-        pieces.push(
-            <Rook removeOld={removeOld} placeNew={placeNew} key="a8" team="black" initFile={0} initRank={7} />,
-            <Rook removeOld={removeOld} placeNew={placeNew} key="h8" team="black" initFile={7} initRank={7} />,
-            <Rook removeOld={removeOld} placeNew={placeNew} key="a1" team="white" initFile={0} initRank={0} />,
-            <Rook removeOld={removeOld} placeNew={placeNew} key="h1" team="white" initFile={7} initRank={0} />,
-            <Knight removeOld={removeOld} placeNew={placeNew} key="b8" team="black" initFile={1} initRank={7} />,
-            <Knight removeOld={removeOld} placeNew={placeNew} key="g8" team="black" initFile={6} initRank={7} />,
-            <Knight removeOld={removeOld} placeNew={placeNew} key="b1" team="white" initFile={1} initRank={0} />,
-            <Knight removeOld={removeOld} placeNew={placeNew} key="g1" team="white" initFile={6} initRank={0} />,
-            <Bishop removeOld={removeOld} placeNew={placeNew} key="c8" team="black" initFile={2} initRank={7} />,
-            <Bishop removeOld={removeOld} placeNew={placeNew} key="f8" team="black" initFile={5} initRank={7} />,
-            <Bishop removeOld={removeOld} placeNew={placeNew} key="c1" team="white" initFile={2} initRank={0} />,
-            <Bishop removeOld={removeOld} placeNew={placeNew} key="f1" team="white" initFile={5} initRank={0} />,
-            <King removeOld={removeOld} placeNew={placeNew} key="e8" team="black" initFile={4} initRank={7} />,
-            <Queen removeOld={removeOld} placeNew={placeNew} key="d8" team="black" initFile={3} initRank={7} />,
-            <King removeOld={removeOld} placeNew={placeNew} key="e1" team="white" initFile={4} initRank={0} />,
-            <Queen removeOld={removeOld} placeNew={placeNew} key="d1" team="white" initFile={3} initRank={0} />,
+        setup.push(
+            <Piece type={faChessRook} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="a8" team="black" initFile={0} initRank={7} />,
+            <Piece type={faChessRook} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="h8" team="black" initFile={7} initRank={7} />,
+            <Piece type={faChessRook} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="a1" team="white" initFile={0} initRank={0} />,
+            <Piece type={faChessRook} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="h1" team="white" initFile={7} initRank={0} />,
+            <Piece type={faChessKnight} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="b8" team="black" initFile={1} initRank={7} />,
+            <Piece type={faChessKnight} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="g8" team="black" initFile={6} initRank={7} />,
+            <Piece type={faChessKnight} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="b1" team="white" initFile={1} initRank={0} />,
+            <Piece type={faChessKnight} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="g1" team="white" initFile={6} initRank={0} />,
+            <Piece type={faChessBishop} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="c8" team="black" initFile={2} initRank={7} />,
+            <Piece type={faChessBishop} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="f8" team="black" initFile={5} initRank={7} />,
+            <Piece type={faChessBishop} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="c1" team="white" initFile={2} initRank={0} />,
+            <Piece type={faChessBishop} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="f1" team="white" initFile={5} initRank={0} />,
+            <Piece type={faChessKing} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="e8" team="black" initFile={4} initRank={7} />,
+            <Piece type={faChessQueen} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="d8" team="black" initFile={3} initRank={7} />,
+            <Piece type={faChessKing} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="e1" team="white" initFile={4} initRank={0} />,
+            <Piece type={faChessQueen} pieces={pieces} makeGhosts={makeGhosts} removeOld={removeOld} placeNew={placeNew} key="d1" team="white" initFile={3} initRank={0} />,
         )
-        console.log("Board has been set. Pieces:", pieces)
-        return pieces;
+        setPieces([setup])
+        console.log("Board has been set. Pieces:", setup)
     }
 
+    useEffect(() => {
+
+        setBoard();
+
+    },[])
+
     return (
-        <div onClick={() => console.log("pieces in play", inPlay)} className="game-board-wrap">
+        <div onClick={() => console.log("pieces in play", pieces)} className="game-board-wrap">
             <div className="game-board">
                 {ghosts}
-                {setBoard()}
+                {pieces}
                 {makeSquares()}
             </div>
         </div>
