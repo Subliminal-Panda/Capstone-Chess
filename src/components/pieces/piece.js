@@ -1,42 +1,46 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
+import Ghost from '../ghost';
 
 export default function Piece (props) {
 
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
 
-    const { initRank, initFile, team, removeOld, placeNew, makeGhosts, type, pieces } = props;
+    const { initRank, initFile, team, type, pieces, select } = props;
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
     const [ currentRank, setCurrentRank ] = useState(initRank)
     const [ currentFile, setCurrentFile ] = useState(initFile)
-    const [ moved, setMoved ] = useState(false)
+    let [ moved, setMoved ] = useState(false)
     const [availMoves, setAvailMoves] = useState([]);
     const [selected, setSelected] = useState(false);
+    const [ghosts, setGhosts] = useState([])
 
     const handleHover = () => {
         setHover(true)
-        makeGhosts(availMoves, type, [initFile, initRank], team)
+        console.log("Pieces stored in piece:", pieces)
+        makeGhosts(availMoves, type, [initFile, initRank], team, pieces)
     }
 
     const handleUnhover = () => {
         setHover(false)
+        { !selected ? setGhosts([]) : null };
     }
 
     const toggleSelected = () => {
         if(!selected) {
             setSelected(true)
+            select(initRank, initFile)
         } else if(selected) {
             setSelected(false)
         }
-        console.log(props, "selected?", selected)
     }
 
 
-    const determineMoves = (type) => {
+    const determineMoves = (type, currentFile, currentRank) => {
         const usableMoves = []
         const distances = [1,2,3,4,5,6,7]
         if(type === faChessPawn) {
@@ -186,37 +190,58 @@ export default function Piece (props) {
         setAvailMoves(usableMoves)
     }
 
-    useEffect(() => {
-        determineMoves(type);
-    },[]);
+    const makeGhosts = (availMoves = [], pieceType, initposition, team, pieces) => {
+        const newGhosts = []
+        console.log("moves for ghosts:", availMoves)
+        availMoves.forEach((loc) => {
 
-    // const move = (startRank, startFile, increment) => {
-    //     console.log(props);
-    //     removeOld([props, currentPosition]);
-    //     if(team === "white" && startRank < 7) {
-    //         setCurrentPosition(`${files[startFile]}${ranks[startRank + increment]}`)
-    //         setCurrentRank(startRank + increment);
-    //         setMoved(true);
-    //         placeNew([props, `${files[startFile]}${ranks[startRank + increment]}`]);
-    //     } else if(team ==="black" && startRank > 0) {
-    //         setCurrentPosition(`${files[startFile]}${ranks[startRank - increment]}`)
-    //         setCurrentRank(startRank - increment);
-    //         setMoved(true);
-    //         placeNew([props, `${files[startFile]}${ranks[startRank - increment]}`]);
-    //     }
-    // }
+                const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
+                console.log("ghost position:", ghostPosition)
+                newGhosts.push(<Ghost
+                    pieces={pieces}
+                    team={team}
+                    initposition={initposition}
+                    move={move}
+                    file={loc[0][0]}
+                    rank={loc[1][0]}
+                    position={ghostPosition}
+                    type={pieceType}
+                />)
+        })
+        console.log("ghosts", newGhosts)
+        setGhosts([newGhosts])
+        return(ghosts);
+    }
+
+    useEffect(() => {
+        determineMoves(type, currentFile, currentRank);
+        setMoved(true);
+    },[pieces]);
+
+    const move = (newFile, newRank, newPosition) => {
+        setMoved(true)
+        setCurrentFile(newFile)
+        setCurrentRank(newRank)
+        setCurrentPosition(newPosition)
+        setSelected(false)
+        determineMoves(type, newFile, newRank)
+        setGhosts([])
+    }
 
     return (
-        <FontAwesomeIcon
-        onClick={() => toggleSelected()}
-        onMouseOver={() => handleHover()}
-        onMouseOut={() => handleUnhover()}
-        className={ hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
-        style={{
-            gridArea: currentPosition,
-            color: team,
-        }}
-        icon={ type }
-        />
+        <div className="game-board" style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
+            {ghosts}
+            <FontAwesomeIcon
+            onClick={() => toggleSelected()}
+            onMouseOver={() => handleHover()}
+            onMouseOut={() => handleUnhover()}
+            className={ hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
+            style={{
+                gridArea: currentPosition,
+                color: team,
+            }}
+            icon={ type }
+            />
+        </div>
     )
 }

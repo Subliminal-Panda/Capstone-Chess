@@ -1,8 +1,8 @@
 ﻿.game-board {
     width: calc(95vmin - 150px);
     height: calc(95vmin - 150px);
-    border: .3rem solid black;
-    gap: .2rem;
+    // border: .3rem solid black;
+    // gap: .2rem;
     display: grid;
     justify-content: center;
     align-items: center;
@@ -27,4 +27,8 @@
     width: calc(98vmin - 140px);
     height: calc(98vmin - 140px);
 
+}
+
+button {
+    margin-bottom: .5rem;
 }

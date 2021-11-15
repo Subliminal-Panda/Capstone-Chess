@@ -2,14 +2,14 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Ghost(props) {
-    const { file, rank, position, type, move, initposition, team } = props
+    const { file, rank, position, type, move, initposition, team, pieces } = props
 
     return (
         <FontAwesomeIcon
 
-        onClick={() => move(file, rank, position, initposition, type, team)}
+        onClick={() => move(file, rank, position)}
         initposition={initposition}
-        key={position}
+        key={`ghost${position}`}
         rank={rank}
         file={file}
         position={position}
