@@ -42,117 +42,59 @@ export default function Piece (props) {
 
     const determineMoves = (type, currentFile, currentRank) => {
         const usableMoves = []
-        const distances = [1,2,3,4,5,6,7]
+        const checkDirection = (vert, horiz, dist = 7, otherPieceFile, otherPieceRank) => {
+            for(let i = 1; i < (dist + 1); i++) {
+                let horizontal = currentFile;
+                let vertical = currentRank;
+                if(vert === "up") {
+                    vertical = (currentRank + i)
+                } else if(vert === "down") {
+                    vertical = (currentRank - i)
+                };
+                if(horiz === "right") {
+                    horizontal = (currentFile + i)
+                } else if(horiz === "left") {
+                    horizontal = (currentFile - i)
+                };
+                if(horizontal === otherPieceFile && vertical === otherPieceRank) {break};
+                if(horizontal > 7 || vertical > 7 || horizontal < 0 || vertical < 0) {break};
+                usableMoves.push([[horizontal], [vertical]])
+            }
+        }
         if(type === faChessPawn) {
             if(team === "white" && currentRank < 7) {
-                usableMoves.push([[currentFile],[currentRank + 1]]);
-                { !moved ? usableMoves.push([[currentFile],[currentRank + 2]]) : null }
+                { !moved ? checkDirection("up", null, 2) : checkDirection("up", null, 1) }
             } else if(team === "black" && currentRank > 0) {
-                usableMoves.push([[currentFile],[currentRank - 1]])
-                { !moved ? usableMoves.push([[currentFile],[currentRank - 2]]) : null }
+                { !moved ? checkDirection("down", null, 2) : checkDirection("down", null, 1) }
             }
         } else if(type === faChessKing) {
-                const up = currentRank + 1;
-                const down = currentRank - 1;
-                const right = currentFile + 1;
-                const left = currentFile - 1;
-                if(up < 8) {
-                    usableMoves.push([[currentFile],[up]])
-                    if(right < 8) {
-                        usableMoves.push([[right],[up]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[up]])
-                    }
-                }
-                if(down >= 0) {
-                    if(right < 8) {
-                        usableMoves.push([[right],[down]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[down]])
-                    }
-                    usableMoves.push([[currentFile],[down]])
-                }
-                if(right < 8) {
-                    usableMoves.push([[right],[currentRank]])
-                }
-                if(left >= 0) {
-                    usableMoves.push([[left],[currentRank]])
-                }
+            checkDirection("up", "right", 1)
+            checkDirection("up", "left", 1)
+            checkDirection("up", null, 1)
+            checkDirection("down", "right", 1)
+            checkDirection("down", "left", 1)
+            checkDirection("down", null, 1)
+            checkDirection(null, "right", 1)
+            checkDirection(null, "left", 1)
         } else if(type === faChessQueen) {
-            distances.forEach((dist) => {
-                const up = currentRank + dist;
-                const down = currentRank - dist;
-                const right = currentFile + dist;
-                const left = currentFile - dist;
-                if(up < 8) {
-                    usableMoves.push([[currentFile],[up]])
-                    if(right < 8) {
-                        usableMoves.push([[right],[up]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[up]])
-                    }
-                }
-                if(down >= 0) {
-                    if(right < 8) {
-                        usableMoves.push([[right],[down]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[down]])
-                    }
-                    usableMoves.push([[currentFile],[down]])
-                }
-                if(right < 8) {
-                    usableMoves.push([[right],[currentRank]])
-                }
-                if(left >= 0) {
-                    usableMoves.push([[left],[currentRank]])
-                }
-            })
+            checkDirection("up", "right")
+            checkDirection("up", "left")
+            checkDirection("up")
+            checkDirection("down", "right")
+            checkDirection("down", "left")
+            checkDirection("down")
+            checkDirection(null, "right")
+            checkDirection(null, "left")
         } else if(type === faChessRook) {
-            distances.forEach((dist) => {
-                const up = currentRank + dist;
-                const down = currentRank - dist;
-                const right = currentFile + dist;
-                const left = currentFile - dist;
-                if(up < 8) {
-                    usableMoves.push([[currentFile],[up]])
-                }
-                if(down >= 0) {
-                    usableMoves.push([[currentFile],[down]])
-                }
-                if(right < 8) {
-                    usableMoves.push([[right],[currentRank]])
-                }
-                if(left >= 0) {
-                    usableMoves.push([[left],[currentRank]])
-                }
-            })
+            checkDirection("up")
+            checkDirection("down")
+            checkDirection(null, "right")
+            checkDirection(null, "left")
         } else if(type === faChessBishop) {
-            distances.forEach((dist) => {
-                const up = currentRank + dist;
-                const down = currentRank - dist;
-                const right = currentFile + dist;
-                const left = currentFile - dist;
-                if(up < 8) {
-                    if(right < 8) {
-                        usableMoves.push([[right],[up]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[up]])
-                    }
-                }
-                if(down >= 0) {
-                    if(right < 8) {
-                        usableMoves.push([[right],[down]])
-                    }
-                    if(left >= 0) {
-                        usableMoves.push([[left],[down]])
-                    }
-                }
-            })
+            checkDirection("up", "right")
+            checkDirection("up", "left")
+            checkDirection("down", "right")
+            checkDirection("down", "left")
         } else if(type === faChessKnight) {
             if(currentFile + 2 < 8){
                 if(currentRank + 1 < 8) {
