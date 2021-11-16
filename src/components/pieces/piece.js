@@ -73,13 +73,17 @@ export default function Piece (props) {
                         };
                     }
                     if(horizontal == otherPieceFile && vertical == otherPieceRank) {
-                        takeable = true;
+                        if(type !== faChessPawn) {
+                            takeable = true;
+                        }
                     };
                 })
                 if(!teammate) {
-                    usableMoves.push([[horizontal], [vertical]])
                     if(takeable) {
+                        usableMoves.push([[horizontal], [vertical], "take"])
                         break
+                    } else {
+                        usableMoves.push([[horizontal], [vertical]])
                     }
                 } else {
                     break
@@ -140,7 +144,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile + 2],[currentRank + 1]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 2],[currentRank + 1]])}
+                    if(takeable) {usableMoves.push([[currentFile + 2],[currentRank + 1], "take"])}
                 }
                 if(currentRank - 1 >= 0) {
                     let teammate = false;
@@ -161,7 +166,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile + 2],[currentRank - 1]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 2],[currentRank - 1]])}
+                    if(takeable) {usableMoves.push([[currentFile + 2],[currentRank - 1], "take"])}
                 }
             }
             if(currentFile - 2 >= 0){
@@ -183,7 +189,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile - 2],[currentRank + 1]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 2],[currentRank + 1]])}
+                    if(takeable) {usableMoves.push([[currentFile - 2],[currentRank + 1], "take"])}
                 }
                 if(currentRank - 1 >= 0) {
                     let teammate = false;
@@ -203,7 +210,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile - 2],[currentRank - 1]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 2],[currentRank - 1]])}
+                    if(takeable) {usableMoves.push([[currentFile - 2],[currentRank - 1], "take"])}
                 }
             }
             if(currentFile + 1 < 8){
@@ -225,7 +233,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile + 1],[currentRank + 2]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 1],[currentRank + 2]])}
+                    if(takeable) {usableMoves.push([[currentFile + 1],[currentRank + 2], "take"])}
                 }
                 if(currentRank - 2 >= 0) {
                     let teammate = false;
@@ -245,7 +254,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile + 1],[currentRank - 2]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 1],[currentRank - 2]])}
+                    if(takeable) {usableMoves.push([[currentFile + 1],[currentRank - 2], "take"])}
                 }
             }
             if(currentFile - 1 >= 0){
@@ -267,7 +277,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile - 1],[currentRank + 2]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 1],[currentRank + 2]])}
+                    if(takeable) {usableMoves.push([[currentFile - 1],[currentRank + 2], "take"])}
                 }
                 if(currentRank - 2 >= 0) {
                     let teammate = false;
@@ -287,7 +298,8 @@ export default function Piece (props) {
                             };
                         }
                     })
-                    if(!teammate || takeable) {usableMoves.push([[currentFile - 1],[currentRank - 2]])}
+                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 1],[currentRank - 2]])}
+                    if(takeable) {usableMoves.push([[currentFile - 1],[currentRank - 2], "take"])}
                 }
             }
         }
@@ -298,10 +310,14 @@ export default function Piece (props) {
         determineMoves(type, currentFile, currentRank, records);
         const newGhosts = []
         availMoves.forEach((loc) => {
-
+                let take = false
+                if(loc[2] === "take") {
+                    take = true
+                }
                 const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 newGhosts.push(<Ghost
                     recorded={records}
+                    take={take}
                     team={team}
                     initposition={initposition}
                     move={move}

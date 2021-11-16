@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Ghost(props) {
-    const { file, rank, position, type, move, initposition, team, recorded } = props
+    const { file, rank, position, type, move, initposition, team, recorded, take } = props
 
     return (
         <FontAwesomeIcon
@@ -13,7 +13,7 @@ export default function Ghost(props) {
         rank={rank}
         file={file}
         position={position}
-        className="ghost"
+        className={ take ? "take ghost" : "ghost" }
         style={{
             gridArea: `${position}`,
         }}

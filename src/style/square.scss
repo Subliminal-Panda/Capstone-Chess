@@ -22,7 +22,7 @@
 
 .selected-piece {
     * {
-        color: $warning;
+        color: $dark-teal;
     }
 }
 
@@ -33,4 +33,14 @@
     justify-self: center;
     color: $blue;
     z-index: 1;
+}
+
+.take {
+    font-size: 8vmin;
+    color: $warning;
+}
+
+.notation {
+    // color: $teal;
+    opacity: .25;
 }
