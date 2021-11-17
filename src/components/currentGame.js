@@ -5,6 +5,8 @@ const CurrentGameContext = createContext({
     setActivePlayer: () => {},
     selection: "",
     setSelection: () => {},
+    boardSet: [],
+    setBoardSet: () => {},
 })
 
 export default CurrentGameContext

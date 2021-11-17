@@ -2,7 +2,6 @@
 import Square from './Square';
 import Piece from './pieces/piece';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
-import useForceUpdate from 'use-force-update';
 import CurrentGameContext from './currentGame';
 
 export default function Board (props) {
@@ -11,11 +10,9 @@ export default function Board (props) {
     const files = ["a","b","c","d","e","f","g","h"]
     const [pieces, setPieces] = useState([]);
     const boardRecords = []
-    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
+    const { boardSet, setBoardSet } = useContext(CurrentGameContext)
     let setup = []
     let taken = []
-
-    const forceUpdate = useForceUpdate();
 
     const record = (type, team, initPosition, currentFile, currentRank) => {
         boardRecords.forEach((pc, idx) => {

@@ -2,20 +2,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
 import Ghost from '../ghost';
-import useForceUpdate from 'use-force-update';
 import CurrentGameContext from '../currentGame';
 
 export default function Piece (props) {
 
-    const forceUpdate = useForceUpdate();
-
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
 
-    const { initRank, initFile, team, type, recorded, record, capturePiece, takeTurn } = props;
+    const { initRank, initFile, team, type, recorded, record, capturePiece } = props;
 
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { selection, setSelection } = useContext(CurrentGameContext)
+    const { boardSet, setBoardSet } = useContext(CurrentGameContext)
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
@@ -45,14 +43,17 @@ export default function Piece (props) {
     }
 
     const toggleSelected = () => {
-        setPieceRecords(recorded)
-        determineMoves(type, currentFile, currentRank, recorded);
-        if(!selected) {
-            setSelected(true)
-            setSelection(true)
-        } else if(selected) {
-            setSelected(false)
-            setSelection(false)
+        if(!selection) {
+
+            setPieceRecords(recorded)
+            determineMoves(type, currentFile, currentRank, recorded);
+            if(!selected) {
+                setSelected(true)
+                setSelection(true)
+            } else if(selected) {
+                setSelected(false)
+                setSelection(false)
+            }
         }
     }
 
@@ -322,7 +323,6 @@ export default function Piece (props) {
             }
         }
         setAvailMoves(usableMoves);
-        forceUpdate();
     }
 
     const makeGhosts = (availMoves = [], pieceType, initposition, team, recorded) => {
@@ -391,7 +391,6 @@ export default function Piece (props) {
     })
 
     useEffect(() => {
-        forceUpdate();
     },[recorded])
 
     return (
