@@ -1,8 +1,9 @@
-﻿import React, { useEffect, useState, useReducer } from 'react';
+﻿import React, { useEffect, useState, useContext } from 'react';
 import Square from './Square';
 import Piece from './pieces/piece';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
 import useForceUpdate from 'use-force-update';
+import CurrentGameContext from './currentGame';
 
 export default function Board (props) {
 
@@ -10,10 +11,9 @@ export default function Board (props) {
     const files = ["a","b","c","d","e","f","g","h"]
     const [pieces, setPieces] = useState([]);
     const boardRecords = []
-    const [ onturn, setOnTurn ] = useState("white")
+    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     let setup = []
     let taken = []
-    const [selectedPiece, setSelectedPiece] = useState([]);
 
     const forceUpdate = useForceUpdate();
 
@@ -24,7 +24,6 @@ export default function Board (props) {
             }
         })
         boardRecords.push([type, team, initPosition, currentFile, currentRank])
-        console.log("board records updated:", boardRecords)
     }
 
     const makeSquares = () => {
@@ -56,12 +55,6 @@ export default function Board (props) {
         return(squares);
     }
 
-    const takeTurn = () => {}
-
-    const select = (initRank, initFile) => {
-        setSelectedPiece(initRank, initFile)
-    }
-
     const capturePiece =  (file, rank, position, attacker) => {
         console.clear()
         let attacked = []
@@ -71,12 +64,10 @@ export default function Board (props) {
                 boardRecords.splice(idx, 1)
             }
         })
-        console.log("attacked:", attacked)
         setup.forEach((pce, idxe) => {
             if(pce.key === attacked[2]) {
                 setup = setup.filter(item => item.key !== attacked[2])
                 taken.push(pce)
-                console.log("taken:", taken)
                 setPieces([setup])
             }
         })
@@ -85,38 +76,41 @@ export default function Board (props) {
     const setBoard = () => {
         for(let i=0; i<8; i++) {
             setup.push(
-                <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessPawn} recorded={boardRecords} key={`${files[i]}2`} team="white" initFile={i} initRank={1} inPlay={true} />
+                <Piece capturePiece={capturePiece} record={record} type={faChessPawn} recorded={boardRecords} key={`${files[i]}2`} team="white" initFile={i} initRank={1} />
             );
             setup.push(
-                <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessPawn} recorded={boardRecords} key={`${files[i]}7`} team="black" initFile={i} initRank={6} inPlay={true} />
+                <Piece capturePiece={capturePiece} record={record} type={faChessPawn} recorded={boardRecords} key={`${files[i]}7`} team="black" initFile={i} initRank={6} />
             );
         };
         setup.push(
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessRook} recorded={boardRecords} key="a8" team="black" initFile={0} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessRook} recorded={boardRecords} key="h8" team="black" initFile={7} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessRook} recorded={boardRecords} key="a1" team="white" initFile={0} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessRook} recorded={boardRecords} key="h1" team="white" initFile={7} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKnight} recorded={boardRecords} key="b8" team="black" initFile={1} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKnight} recorded={boardRecords} key="g8" team="black" initFile={6} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKnight} recorded={boardRecords} key="b1" team="white" initFile={1} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKnight} recorded={boardRecords} key="g1" team="white" initFile={6} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessBishop} recorded={boardRecords} key="c8" team="black" initFile={2} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessBishop} recorded={boardRecords} key="f8" team="black" initFile={5} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessBishop} recorded={boardRecords} key="c1" team="white" initFile={2} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessBishop} recorded={boardRecords} key="f1" team="white" initFile={5} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKing} recorded={boardRecords} key="e8" team="black" initFile={4} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessQueen} recorded={boardRecords} key="d8" team="black" initFile={3} initRank={7} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessKing} recorded={boardRecords} key="e1" team="white" initFile={4} initRank={0} inPlay={true} />,
-            <Piece takeTurn={takeTurn} capturePiece={capturePiece} record={record} select={select} type={faChessQueen} recorded={boardRecords} key="d1" team="white" initFile={3} initRank={0} inPlay={true} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessRook} recorded={boardRecords} key="a8" team="black" initFile={0} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessRook} recorded={boardRecords} key="h8" team="black" initFile={7} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessRook} recorded={boardRecords} key="a1" team="white" initFile={0} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessRook} recorded={boardRecords} key="h1" team="white" initFile={7} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKnight} recorded={boardRecords} key="b8" team="black" initFile={1} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKnight} recorded={boardRecords} key="g8" team="black" initFile={6} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKnight} recorded={boardRecords} key="b1" team="white" initFile={1} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKnight} recorded={boardRecords} key="g1" team="white" initFile={6} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessBishop} recorded={boardRecords} key="c8" team="black" initFile={2} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessBishop} recorded={boardRecords} key="f8" team="black" initFile={5} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessBishop} recorded={boardRecords} key="c1" team="white" initFile={2} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessBishop} recorded={boardRecords} key="f1" team="white" initFile={5} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKing} recorded={boardRecords} key="e8" team="black" initFile={4} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessQueen} recorded={boardRecords} key="d8" team="black" initFile={3} initRank={7} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessKing} recorded={boardRecords} key="e1" team="white" initFile={4} initRank={0} />,
+            <Piece capturePiece={capturePiece} record={record} type={faChessQueen} recorded={boardRecords} key="d1" team="white" initFile={3} initRank={0} />,
             )
             setPieces([setup])
     }
 
     useEffect(() => {
+    }, [])
+
+    useEffect(() => {
     }, [boardRecords])
 
     return (
-        <div onClick={() => console.log("On click pieces:", pieces)} className="game-board-wrap">
+        <div className="game-board-wrap">
             { !pieces[0] ? <button onClick={() => setBoard()}>Set Board</button> : null }
             <div className="game-board">
                 {pieces}

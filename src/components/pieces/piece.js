@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect, useReducer } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
 import Ghost from '../ghost';
 import useForceUpdate from 'use-force-update';
+import CurrentGameContext from '../currentGame';
 
 export default function Piece (props) {
 
@@ -11,14 +12,16 @@ export default function Piece (props) {
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
 
-    const { initRank, initFile, team, type, recorded, select, record, capturePiece, inPlay, takeTurn } = props;
+    const { initRank, initFile, team, type, recorded, record, capturePiece, takeTurn } = props;
+
+    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
+    const { selection, setSelection } = useContext(CurrentGameContext)
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
     const [ currentRank, setCurrentRank ] = useState(initRank)
     const [ currentFile, setCurrentFile ] = useState(initFile)
     const [ moved, setMoved ] = useState(false)
-    const [ pieceInPlay, setInPlay ] = useState(inPlay)
     let quickerMoved = moved
     const [ availMoves, setAvailMoves ] = useState([]);
     const [ selected, setSelected ] = useState(false);
@@ -26,9 +29,14 @@ export default function Piece (props) {
     const [ pieceRecords, setPieceRecords ] = useState(recorded)
 
     const handleHover = () => {
-        determineMoves(type, currentFile, currentRank, recorded);
-        setHover(true)
-        makeGhosts(availMoves, type, [initFile, initRank], team, recorded)
+        if(!selection) {
+
+            determineMoves(type, currentFile, currentRank, recorded);
+            if(availMoves[0] !== undefined) {
+                setHover(true)
+                makeGhosts(availMoves, type, [initFile, initRank], team, recorded)
+            }
+        }
     }
 
     const handleUnhover = () => {
@@ -41,18 +49,12 @@ export default function Piece (props) {
         determineMoves(type, currentFile, currentRank, recorded);
         if(!selected) {
             setSelected(true)
-            select(initRank, initFile)
+            setSelection(true)
         } else if(selected) {
             setSelected(false)
+            setSelection(false)
         }
     }
-
-    const showIfCaptured = () => {
-        if(!inPlay) {
-            console.log("I've been captured!", currentPosition)
-        }
-    }
-
 
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
         const usableMoves = []
@@ -349,9 +351,17 @@ export default function Piece (props) {
         return(ghosts);
     }
 
+    const toggleActivePlayer = () => {
+        if(activePlayer === "white") {
+            setActivePlayer("black")
+        } else if(activePlayer === "black") {
+            setActivePlayer("white")
+        }
+    }
+
 
     const move = (newFile, newRank, newPosition) => {
-        takeTurn()
+        toggleActivePlayer()
         record(type, team, `${files[initFile]}${ranks[initRank]}`, newFile, newRank)
         setCurrentFile(newFile)
         setCurrentRank(newRank)
@@ -359,6 +369,7 @@ export default function Piece (props) {
         setMoved(true)
         quickerMoved = true;
         setSelected(false)
+        setSelection(false)
         determineMoves(type, newFile, newRank, recorded)
         setGhosts([])
     }
@@ -381,20 +392,17 @@ export default function Piece (props) {
 
     useEffect(() => {
         forceUpdate();
-        showIfCaptured();
-        setInPlay(inPlay);
-    },[recorded, inPlay])
+    },[recorded])
 
     return (
         <div className="game-board" style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
             {ghosts}
             <FontAwesomeIcon
-            onClick={() => toggleSelected()}
-            onMouseOver={() => handleHover()}
-            onMouseOut={() => handleUnhover()}
+            onClick={ activePlayer === team ? () => toggleSelected() : null }
+            onMouseOver={ activePlayer === team ? () => handleHover() : null }
+            onMouseOut={ activePlayer === team ? () => handleUnhover() : null }
             className={ hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
             style={{
-                opacity: !pieceInPlay ? "0%" : "100%",
                 gridArea: currentPosition,
                 color: team,
             }}
