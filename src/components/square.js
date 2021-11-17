@@ -14,7 +14,7 @@ export default function Square(props) {
             gridArea: `${position}`,
             backgroundColor: squareColor
         }}>
-            <h2 key={position}>{position}</h2>
+            <h2 className="notation" key={position}>{position}</h2>
         </div>
     )
 }

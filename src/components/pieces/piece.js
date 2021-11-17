@@ -1,31 +1,34 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useReducer } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChessKing, faChessQueen, faChessRook, faChessBishop, faChessKnight, faChessPawn } from '@fortawesome/free-solid-svg-icons';
 import Ghost from '../ghost';
+import useForceUpdate from 'use-force-update';
 
 export default function Piece (props) {
+
+    const forceUpdate = useForceUpdate();
 
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
 
-    const { initRank, initFile, team, type, recorded, select, record } = props;
+    const { initRank, initFile, team, type, recorded, select, record, capturePiece, inPlay, takeTurn } = props;
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
     const [ currentRank, setCurrentRank ] = useState(initRank)
     const [ currentFile, setCurrentFile ] = useState(initFile)
     const [ moved, setMoved ] = useState(false)
+    const [ pieceInPlay, setInPlay ] = useState(inPlay)
     let quickerMoved = moved
     const [ availMoves, setAvailMoves ] = useState([]);
     const [ selected, setSelected ] = useState(false);
     const [ ghosts, setGhosts ] = useState([])
-    const [ records, setRecords ] = useState(recorded)
+    const [ pieceRecords, setPieceRecords ] = useState(recorded)
 
     const handleHover = () => {
-        determineMoves(type, currentFile, currentRank, records);
+        determineMoves(type, currentFile, currentRank, recorded);
         setHover(true)
-        console.log("piece's records:", records)
-        makeGhosts(availMoves, type, [initFile, initRank], team, records)
+        makeGhosts(availMoves, type, [initFile, initRank], team, recorded)
     }
 
     const handleUnhover = () => {
@@ -34,7 +37,8 @@ export default function Piece (props) {
     }
 
     const toggleSelected = () => {
-        console.log("piece's records:", records)
+        setPieceRecords(recorded)
+        determineMoves(type, currentFile, currentRank, recorded);
         if(!selected) {
             setSelected(true)
             select(initRank, initFile)
@@ -43,15 +47,21 @@ export default function Piece (props) {
         }
     }
 
+    const showIfCaptured = () => {
+        if(!inPlay) {
+            console.log("I've been captured!", currentPosition)
+        }
+    }
 
-    const determineMoves = (type, currentFile, currentRank, records) => {
+
+    const determineMoves = (type, currentFile, currentRank, pieceArray) => {
         const usableMoves = []
-        const checkDirection = (vert, horiz, dist = 7) => {
+        const checkDirection = (vert, horiz, dist = 7, pawn = false) => {
             for(let i = 1; i < (dist + 1); i++) {
                 let horizontal = currentFile;
                 let vertical = currentRank;
-                let teammate = false
-                let takeable = false
+                let ally = false
+                let capture = false
                 if(vert === "up") {
                     vertical = (currentRank + i)
                 } else if(vert === "down") {
@@ -63,38 +73,44 @@ export default function Piece (props) {
                     horizontal = (currentFile - i)
                 };
                 if(horizontal > 7 || vertical > 7 || horizontal < 0 || vertical < 0) {break};
-                records.forEach((rec) => {
+                pieceArray.forEach((rec) => {
                     let otherPieceFile = rec[3]
                     let otherPieceRank = rec[4]
                     let otherPieceColor = rec[1]
                     if(team === otherPieceColor) {
                         if(horizontal == otherPieceFile && vertical == otherPieceRank) {
-                            teammate = true;
+                            ally = true;
                         };
                     }
                     if(horizontal == otherPieceFile && vertical == otherPieceRank) {
-                        if(type !== faChessPawn) {
-                            takeable = true;
-                        }
+                            capture = true;
                     };
                 })
-                if(!teammate) {
-                    if(takeable) {
-                        usableMoves.push([[horizontal], [vertical], "take"])
+                if(!ally) {
+                    if(capture && pawn && horizontal === currentFile) {
+                        break
+                    } else if(capture) {
+                        usableMoves.push([[horizontal], [vertical], "capture"])
+                        break
+                    } else if(pawn && horizontal !== currentFile) {
                         break
                     } else {
                         usableMoves.push([[horizontal], [vertical]])
                     }
-                } else {
+                } else if(ally) {
                     break
                 }
             }
         }
         if(type === faChessPawn) {
             if(team === "white" && currentRank < 7) {
-                { !quickerMoved ? checkDirection("up", null, 2) : checkDirection("up", null, 1) }
+                checkDirection("up", "right", 1, true)
+                checkDirection("up", "left", 1, true)
+                { !quickerMoved ? checkDirection("up", null, 2, true) : checkDirection("up", null, 1, true) }
             } else if(team === "black" && currentRank > 0) {
-                { !quickerMoved ? checkDirection("down", null, 2) : checkDirection("down", null, 1) }
+                checkDirection("down", "right", 1, true)
+                checkDirection("down", "left", 1, true)
+                { !quickerMoved ? checkDirection("down", null, 2, true) : checkDirection("down", null, 1, true) }
             }
         } else if(type === faChessKing) {
             checkDirection("up", "right", 1)
@@ -127,197 +143,199 @@ export default function Piece (props) {
         } else if(type === faChessKnight) {
             if(currentFile + 2 < 8){
                 if(currentRank + 1 < 8) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile + 2 == otherPieceFile && currentRank + 1 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile + 2 == otherPieceFile && currentRank + 1 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 2],[currentRank + 1]])}
-                    if(takeable) {usableMoves.push([[currentFile + 2],[currentRank + 1], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile + 2],[currentRank + 1]])}
+                    if(capture) {usableMoves.push([[currentFile + 2],[currentRank + 1], "capture"])}
                 }
                 if(currentRank - 1 >= 0) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile + 2 == otherPieceFile && currentRank - 1 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
 
                             if(currentFile + 2 == otherPieceFile && currentRank - 1 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 2],[currentRank - 1]])}
-                    if(takeable) {usableMoves.push([[currentFile + 2],[currentRank - 1], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile + 2],[currentRank - 1]])}
+                    if(capture) {usableMoves.push([[currentFile + 2],[currentRank - 1], "capture"])}
                 }
             }
             if(currentFile - 2 >= 0){
                 if(currentRank + 1 < 8) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile - 2 == otherPieceFile && currentRank + 1 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile - 2 == otherPieceFile && currentRank + 1 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 2],[currentRank + 1]])}
-                    if(takeable) {usableMoves.push([[currentFile - 2],[currentRank + 1], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile - 2],[currentRank + 1]])}
+                    if(capture) {usableMoves.push([[currentFile - 2],[currentRank + 1], "capture"])}
                 }
                 if(currentRank - 1 >= 0) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile - 2 == otherPieceFile && currentRank - 1 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile - 2 == otherPieceFile && currentRank - 1 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 2],[currentRank - 1]])}
-                    if(takeable) {usableMoves.push([[currentFile - 2],[currentRank - 1], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile - 2],[currentRank - 1]])}
+                    if(capture) {usableMoves.push([[currentFile - 2],[currentRank - 1], "capture"])}
                 }
             }
             if(currentFile + 1 < 8){
                 if(currentRank + 2 < 8) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile + 1 == otherPieceFile && currentRank + 2 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile + 1 == otherPieceFile && currentRank + 2 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 1],[currentRank + 2]])}
-                    if(takeable) {usableMoves.push([[currentFile + 1],[currentRank + 2], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile + 1],[currentRank + 2]])}
+                    if(capture) {usableMoves.push([[currentFile + 1],[currentRank + 2], "capture"])}
                 }
                 if(currentRank - 2 >= 0) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile + 1 == otherPieceFile && currentRank -2 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile + 1 == otherPieceFile && currentRank - 2 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile + 1],[currentRank - 2]])}
-                    if(takeable) {usableMoves.push([[currentFile + 1],[currentRank - 2], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile + 1],[currentRank - 2]])}
+                    if(capture) {usableMoves.push([[currentFile + 1],[currentRank - 2], "capture"])}
                 }
             }
             if(currentFile - 1 >= 0){
                 if(currentRank + 2 < 8) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile - 1 == otherPieceFile && currentRank + 2 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile - 1 == otherPieceFile && currentRank + 2 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 1],[currentRank + 2]])}
-                    if(takeable) {usableMoves.push([[currentFile - 1],[currentRank + 2], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile - 1],[currentRank + 2]])}
+                    if(capture) {usableMoves.push([[currentFile - 1],[currentRank + 2], "capture"])}
                 }
                 if(currentRank - 2 >= 0) {
-                    let teammate = false;
-                    let takeable = false;
-                    records.forEach((rec) => {
+                    let ally = false;
+                    let capture = false;
+                    pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
                         let otherPieceColor = rec[1]
                         if(team !== otherPieceColor) {
                             if(currentFile - 1 == otherPieceFile && currentRank - 2 == otherPieceRank) {
-                                takeable = true;
+                                capture = true;
                             };
                         }
                         if(team === otherPieceColor) {
                             if(currentFile - 1 == otherPieceFile && currentRank - 2 == otherPieceRank) {
-                                teammate = true;
+                                ally = true;
                             };
                         }
                     })
-                    if(!teammate && !takeable) {usableMoves.push([[currentFile - 1],[currentRank - 2]])}
-                    if(takeable) {usableMoves.push([[currentFile - 1],[currentRank - 2], "take"])}
+                    if(!ally && !capture) {usableMoves.push([[currentFile - 1],[currentRank - 2]])}
+                    if(capture) {usableMoves.push([[currentFile - 1],[currentRank - 2], "capture"])}
                 }
             }
         }
-        setAvailMoves(usableMoves)
+        setAvailMoves(usableMoves);
+        forceUpdate();
     }
 
-    const makeGhosts = (availMoves = [], pieceType, initposition, team, records) => {
-        determineMoves(type, currentFile, currentRank, records);
+    const makeGhosts = (availMoves = [], pieceType, initposition, team, recorded) => {
+        determineMoves(type, currentFile, currentRank, recorded);
         const newGhosts = []
         availMoves.forEach((loc) => {
-                let take = false
-                if(loc[2] === "take") {
-                    take = true
+                let capture = false
+                if(loc[2] === "capture") {
+                    capture = true
                 }
                 const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 newGhosts.push(<Ghost
-                    recorded={records}
-                    take={take}
+                    recorded={pieceRecords}
+                    capturing={capturing}
+                    capture={capture}
                     team={team}
                     initposition={initposition}
                     move={move}
@@ -331,26 +349,41 @@ export default function Piece (props) {
         return(ghosts);
     }
 
-    useEffect(() => {
-        record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank)
-    },[]);
 
     const move = (newFile, newRank, newPosition) => {
-        setMoved(true)
-        quickerMoved = true;
+        takeTurn()
+        record(type, team, `${files[initFile]}${ranks[initRank]}`, newFile, newRank)
         setCurrentFile(newFile)
         setCurrentRank(newRank)
         setCurrentPosition(newPosition)
+        setMoved(true)
+        quickerMoved = true;
         setSelected(false)
-        determineMoves(type, newFile, newRank, records)
+        determineMoves(type, newFile, newRank, recorded)
         setGhosts([])
-        record(type, team, `${files[initFile]}${ranks[initRank]}`, newFile, newRank)
+    }
+
+    const capturing = (newFile, newRank, newPosition) => {
+        move(newFile, newRank, newPosition)
+        capturePiece(newFile, newRank, newPosition, `${files[initFile]}${ranks[initRank]}`)
     }
 
     useEffect(() => {
-        setRecords(recorded)
-      }, [recorded])
+        record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank)
+        setPieceRecords(recorded)
+    },[]);
 
+    useEffect(() => {
+        if(pieceRecords !== recorded) {
+            determineMoves(type, currentFile, currentRank, recorded);
+        }
+    })
+
+    useEffect(() => {
+        forceUpdate();
+        showIfCaptured();
+        setInPlay(inPlay);
+    },[recorded, inPlay])
 
     return (
         <div className="game-board" style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
@@ -361,6 +394,7 @@ export default function Piece (props) {
             onMouseOut={() => handleUnhover()}
             className={ hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
             style={{
+                opacity: !pieceInPlay ? "0%" : "100%",
                 gridArea: currentPosition,
                 color: team,
             }}

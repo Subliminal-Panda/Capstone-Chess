@@ -1,4 +1,8 @@
 ﻿.main-heading {
     margin: .25rem;
     font-size: 5rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

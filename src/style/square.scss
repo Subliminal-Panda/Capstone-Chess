@@ -6,6 +6,15 @@
     }
 }
 
+.notation {
+    // color: $teal;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    opacity: .25;
+}
+
 .chess-piece {
     font-size: 7vmin;
     position: relative;
@@ -33,14 +42,16 @@
     justify-self: center;
     color: $blue;
     z-index: 1;
+    opacity: .5;
 }
 
-.take {
-    font-size: 8vmin;
+.capture {
     color: $warning;
 }
 
-.notation {
-    // color: $teal;
-    opacity: .25;
+text {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

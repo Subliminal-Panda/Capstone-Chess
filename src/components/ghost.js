@@ -2,18 +2,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Ghost(props) {
-    const { file, rank, position, type, move, initposition, team, recorded, take } = props
+    const { file, rank, position, type, move, initposition, team, recorded, capture, capturing } = props
 
     return (
         <FontAwesomeIcon
 
-        onClick={() => move(file, rank, position)}
+        onClick={ capture ? () => capturing(file, rank, position) : () => move(file, rank, position)}
         initposition={initposition}
         key={`ghost${position}`}
         rank={rank}
         file={file}
         position={position}
-        className={ take ? "take ghost" : "ghost" }
+        className={ capture ? `capture ghost ${team}ghost` : `ghost ${team}ghost` }
         style={{
             gridArea: `${position}`,
         }}
