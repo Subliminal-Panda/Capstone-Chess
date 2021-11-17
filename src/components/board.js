@@ -8,24 +8,19 @@ export default function Board (props) {
 
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
-    const [pieces, setPieces] = useState([]);
-    const boardRecords = []
-    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
-    const { boardSet, setBoardSet } = useContext(CurrentGameContext)
+
     let setup = []
     let taken = []
+    const boardRecords = []
 
-    const record = (type, team, initPosition, currentFile, currentRank) => {
-        boardRecords.forEach((pc, idx) => {
-            if(pc[2] === initPosition) {
-                boardRecords.splice(idx, 1)
-            }
-        })
-        boardRecords.push([type, team, initPosition, currentFile, currentRank])
-    }
+    const [ pieces, setPieces ] = useState([]);
+    const [ squares, setSquares ] = useState([])
+
+    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
+    const { boardSet, setBoardSet } = useContext(CurrentGameContext)
 
     const makeSquares = () => {
-        const squares = []
+        let squareSet = []
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 let dark = "rgb(90, 90, 90)";
@@ -39,7 +34,7 @@ export default function Board (props) {
                 } else {
                     squareColor = light;
                 }
-                squares.push(
+                squareSet.push(
                     <Square
                     key={position}
                     squareColor={squareColor}
@@ -50,25 +45,7 @@ export default function Board (props) {
                 )
             }
         }
-        return(squares);
-    }
-
-    const capturePiece =  (file, rank, position, attacker) => {
-        console.clear()
-        let attacked = []
-        boardRecords.forEach((pc, idx) => {
-            if(pc[3] === file && pc[4] === rank && pc[2] !== attacker) {
-                attacked = pc
-                boardRecords.splice(idx, 1)
-            }
-        })
-        setup.forEach((pce, idxe) => {
-            if(pce.key === attacked[2]) {
-                setup = setup.filter(item => item.key !== attacked[2])
-                taken.push(pce)
-                setPieces([setup])
-            }
-        })
+        setSquares([squareSet])
     }
 
     const setBoard = () => {
@@ -101,7 +78,36 @@ export default function Board (props) {
             setPieces([setup])
     }
 
+    const record = (type, team, initPosition, currentFile, currentRank) => {
+        boardRecords.forEach((pc, idx) => {
+            if(pc[2] === initPosition) {
+                boardRecords.splice(idx, 1)
+            }
+        })
+        boardRecords.push([type, team, initPosition, currentFile, currentRank])
+    }
+
+    const capturePiece =  (file, rank, position, attacker) => {
+        console.clear()
+        let attacked = []
+        boardRecords.forEach((pc, idx) => {
+            if(pc[3] === file && pc[4] === rank && pc[2] !== attacker) {
+                attacked = pc
+                boardRecords.splice(idx, 1)
+            }
+        })
+        setup.forEach((pce, idxe) => {
+            if(pce.key === attacked[2]) {
+                setup = setup.filter(item => item.key !== attacked[2])
+                taken.push(pce)
+                setPieces([setup])
+            }
+        })
+    }
+
     useEffect(() => {
+        makeSquares();
+        setBoard();
     }, [])
 
     useEffect(() => {
@@ -109,10 +115,10 @@ export default function Board (props) {
 
     return (
         <div className="game-board-wrap">
-            { !pieces[0] ? <button onClick={() => setBoard()}>Set Board</button> : null }
+            {/* { !pieces[0] ? <button onClick={() => setBoard()}>Set Board</button> : null } */}
             <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"}>
                 {pieces}
-                {makeSquares()}
+                {squares}
             </div>
         </div>
     )
