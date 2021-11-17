@@ -25,7 +25,6 @@
 .hovered-piece {
     * {
         color: $teal;
-        font-size: 8vmin;
     }
 }
 
@@ -36,13 +35,13 @@
 }
 
 .ghost {
-    font-size: 5vmin;
+    font-size: 6vmin;
     position: relative;
     align-self: center;
     justify-self: center;
     color: $blue;
     z-index: 1;
-    opacity: .5;
+    opacity: .6;
 }
 
 .capture {

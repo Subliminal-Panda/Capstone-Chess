@@ -50,11 +50,12 @@ export default function Piece (props) {
             if(!selected) {
                 setSelected(true)
                 setSelection(true)
-            } else if(selected) {
+            }
+        }
+            if(selected) {
                 setSelected(false)
                 setSelection(false)
             }
-        }
     }
 
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
@@ -394,7 +395,7 @@ export default function Piece (props) {
     },[recorded])
 
     return (
-        <div className="game-board" style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
+        <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
             {ghosts}
             <FontAwesomeIcon
             onClick={ activePlayer === team ? () => toggleSelected() : null }

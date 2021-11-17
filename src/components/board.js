@@ -10,6 +10,7 @@ export default function Board (props) {
     const files = ["a","b","c","d","e","f","g","h"]
     const [pieces, setPieces] = useState([]);
     const boardRecords = []
+    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { boardSet, setBoardSet } = useContext(CurrentGameContext)
     let setup = []
     let taken = []
@@ -109,7 +110,7 @@ export default function Board (props) {
     return (
         <div className="game-board-wrap">
             { !pieces[0] ? <button onClick={() => setBoard()}>Set Board</button> : null }
-            <div className="game-board">
+            <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"}>
                 {pieces}
                 {makeSquares()}
             </div>
