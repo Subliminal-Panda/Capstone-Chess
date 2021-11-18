@@ -9,11 +9,14 @@ export default function Piece (props) {
     const ranks = ["1","2","3","4","5","6","7","8"]
     const files = ["a","b","c","d","e","f","g","h"]
 
-    const { initRank, initFile, team, type, recorded, record, capturePiece } = props;
+    const { initRank, initFile, team, type } = props;
 
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { selection, setSelection } = useContext(CurrentGameContext)
-    const { boardSet, setBoardSet } = useContext(CurrentGameContext)
+    const { pieces, setPieces } = useContext(CurrentGameContext)
+    const { locations, setLocations } = useContext(CurrentGameContext)
+    const { taken, setTaken } = useContext(CurrentGameContext)
+    const { underAttack, setUnderAttack } = useContext(CurrentGameContext)
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
@@ -24,15 +27,23 @@ export default function Piece (props) {
     const [ availMoves, setAvailMoves ] = useState([]);
     const [ selected, setSelected ] = useState(false);
     const [ ghosts, setGhosts ] = useState([])
-    const [ pieceRecords, setPieceRecords ] = useState(recorded)
+
+    const record = (type, team, initPosition, currentFile, currentRank, moved, attacking) => {
+        locations.forEach((pc, idx) => {
+            if(pc[2] === initPosition) {
+                locations.splice(idx, 1)
+            }
+        })
+        locations.push([type, team, initPosition, currentFile, currentRank, moved, attacking])
+        updateAttacks();
+    }
 
     const handleHover = () => {
         if(!selection) {
-
-            determineMoves(type, currentFile, currentRank, recorded);
+            determineMoves(type, currentFile, currentRank, locations);
             if(availMoves[0] !== undefined) {
                 setHover(true)
-                makeGhosts(availMoves, type, [initFile, initRank], team, recorded)
+                makeGhosts(availMoves, type, [initFile, initRank], team, locations)
             }
         }
     }
@@ -45,8 +56,7 @@ export default function Piece (props) {
     const toggleSelected = () => {
         if(!selection) {
 
-            setPieceRecords(recorded)
-            determineMoves(type, currentFile, currentRank, recorded);
+            determineMoves(type, currentFile, currentRank, locations);
             if(!selected) {
                 setSelected(true)
                 setSelection(true)
@@ -58,7 +68,23 @@ export default function Piece (props) {
             }
     }
 
+    const updateAttacks = () => {
+        let attackingAny = locations.filter(item => item[6][0])
+        let attacks = []
+        attackingAny.forEach((pc) => {
+            pc[6].forEach((atk) => {
+                let fileAttacked = atk[0][0]
+                let rankAttacked = atk[1][0]
+                attacks.push([fileAttacked, rankAttacked, pc[2]])
+            })
+        })
+        setUnderAttack([attacks])
+    }
+
+
+
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
+        updateAttacks();
         const usableMoves = []
         const checkDirection = (vert, horiz, dist = 7, pawn = false) => {
             for(let i = 1; i < (dist + 1); i++) {
@@ -125,6 +151,33 @@ export default function Piece (props) {
             checkDirection("down", null, 1)
             checkDirection(null, "right", 1)
             checkDirection(null, "left", 1)
+            // if(!moved && !quickerMoved) {
+            //     if(team === "white") {
+            //         const a1rook = pieceArray.filter(item => item[2] === "a1");
+            //         const h1rook = pieceArray.filter(item => item[2] === "h1");
+            //         const surroundings = [[0,0],[1,0],[2,0],[3,0],[4,0]]
+            //         const filterAtk = (file, rank) => {
+            //             const filtered = underAttack.filter(atk => atk[0] === file && atk[1] === rank)
+            //             return filtered
+            //         }
+            //         surroundings.forEach((sq, idx, arr) => {
+            //             if(filterAtk(sq[0], sq[1], team)[0] != undefined) {
+            //                 console.log("under attack:", filterAtk(sq[0], sq[1], team))
+            //             }
+            //         })
+            //         if(!a1rook[0][5]) {
+            //         }
+            //         if(!h1rook[0][5]) {
+            //         }
+            //     } else if(team === "black") {
+            //         const a8rook = pieceArray.filter(item => item[2] === "a8");
+            //         const h8rook = pieceArray.filter(item => item[2] === "h8");
+            //         if(!a8rook[0][5]) {
+            //         }
+            //         if(!h8rook[0][5]) {
+            //         }
+            //     }
+            // }
         } else if(type === faChessQueen) {
             checkDirection("up", "right")
             checkDirection("up", "left")
@@ -323,11 +376,13 @@ export default function Piece (props) {
                 }
             }
         }
+        record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank, quickerMoved, usableMoves)
         setAvailMoves(usableMoves);
+        updateAttacks();
     }
 
-    const makeGhosts = (availMoves = [], pieceType, initposition, team, recorded) => {
-        determineMoves(type, currentFile, currentRank, recorded);
+    const makeGhosts = (availMoves = [], pieceType, initposition, team, locations) => {
+        determineMoves(type, currentFile, currentRank, locations);
         const newGhosts = []
         availMoves.forEach((loc) => {
                 let capture = false
@@ -336,7 +391,6 @@ export default function Piece (props) {
                 }
                 const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 newGhosts.push(<Ghost
-                    recorded={pieceRecords}
                     capturing={capturing}
                     capture={capture}
                     team={team}
@@ -363,7 +417,6 @@ export default function Piece (props) {
 
     const move = (newFile, newRank, newPosition) => {
         toggleActivePlayer()
-        record(type, team, `${files[initFile]}${ranks[initRank]}`, newFile, newRank)
         setCurrentFile(newFile)
         setCurrentRank(newRank)
         setCurrentPosition(newPosition)
@@ -371,28 +424,36 @@ export default function Piece (props) {
         quickerMoved = true;
         setSelected(false)
         setSelection(false)
-        determineMoves(type, newFile, newRank, recorded)
+        determineMoves(type, newFile, newRank, locations)
         setGhosts([])
     }
 
     const capturing = (newFile, newRank, newPosition) => {
         move(newFile, newRank, newPosition)
-        capturePiece(newFile, newRank, newPosition, `${files[initFile]}${ranks[initRank]}`)
+        capturePiece(newFile, newRank, `${files[initFile]}${ranks[initRank]}`)
     }
 
+    const capturePiece =  (file, rank, attacker) => {
+        let attacked = []
+        locations.forEach((pc, idx) => {
+            if(pc[3] === file && pc[4] === rank && pc[2] !== attacker) {
+                attacked = pc
+                locations.splice(idx, 1)
+                taken.push(attacked)
+                setPieces([pieces[0].filter(item => item.key !== attacked[2])])
+            }
+        })
+    }
+
+
     useEffect(() => {
-        record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank)
-        setPieceRecords(recorded)
+        determineMoves(type, currentFile, currentRank, locations);
+        updateAttacks();
     },[]);
 
     useEffect(() => {
-        if(pieceRecords !== recorded) {
-            determineMoves(type, currentFile, currentRank, recorded);
-        }
-    })
-
-    useEffect(() => {
-    },[recorded])
+        determineMoves(type, currentFile, currentRank, locations);
+    },[locations])
 
     return (
         <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>

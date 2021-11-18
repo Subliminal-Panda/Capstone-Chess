@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Ghost(props) {
-    const { file, rank, position, type, move, initposition, team, recorded, capture, capturing } = props
+    const { file, rank, position, type, move, initposition, team, capture, capturing } = props
 
     return (
         <FontAwesomeIcon
