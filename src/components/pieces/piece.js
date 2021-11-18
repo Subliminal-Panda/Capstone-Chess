@@ -85,14 +85,15 @@ export default function Piece (props) {
         const status = []
         if(underAttack[0] !== undefined) {
             const filtered = underAttack[0].filter(atk => atk[0] === file && atk[1] === rank && atk[3] !== team )
-            if(filtered.length >= 0) {
-
+            if(filtered[0] !== undefined) {
                 filtered.forEach((atk) => {
-                    status.push(file, rank, "unsafe")
+                    status.push(file, rank, "unsafe", atk)
                 })
+            } else {
+                status.push(file, rank, "safe", filtered)
             }
         } else {
-            status.push(file, rank, "safe")
+            status.push(file, rank, "safe", [])
         }
         return(status)
     }
@@ -100,49 +101,78 @@ export default function Piece (props) {
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
         updateAttacks();
         const usableMoves = []
-        const checkDirection = (vert, horiz, dist = 7, pawn = false) => {
+        const checkDirection = (vert, horiz, dist = 7, pawn = false, castle = false) => {
             for(let i = 1; i < (dist + 1); i++) {
                 let horizontal = currentFile;
                 let vertical = currentRank;
                 let ally = false
                 let capture = false
-                if(vert === "up") {
-                    vertical = (currentRank + i)
-                } else if(vert === "down") {
-                    vertical = (currentRank - i)
-                };
-                if(horiz === "right") {
-                    horizontal = (currentFile + i)
-                } else if(horiz === "left") {
-                    horizontal = (currentFile - i)
-                };
-                if(horizontal > 7 || vertical > 7 || horizontal < 0 || vertical < 0) {break};
-                pieceArray.forEach((rec) => {
-                    let otherPieceFile = rec[3]
-                    let otherPieceRank = rec[4]
-                    let otherPieceColor = rec[1]
-                    if(team === otherPieceColor) {
-                        if(horizontal == otherPieceFile && vertical == otherPieceRank) {
-                            ally = true;
-                        };
-                    }
-                    if(horizontal == otherPieceFile && vertical == otherPieceRank) {
-                            capture = true;
+                if(!castle) {
+                    if(vert === "up") {
+                        vertical = (currentRank + i)
+                    } else if(vert === "down") {
+                        vertical = (currentRank - i)
                     };
-                })
-                if(!ally) {
-                    if(capture && pawn && horizontal === currentFile) {
+                    if(horiz === "right") {
+                        horizontal = (currentFile + i)
+                    } else if(horiz === "left") {
+                        horizontal = (currentFile - i)
+                    };
+                    if(horizontal > 7 || vertical > 7 || horizontal < 0 || vertical < 0) {break};
+                    pieceArray.forEach((rec) => {
+                        let otherPieceFile = rec[3]
+                        let otherPieceRank = rec[4]
+                        let otherPieceColor = rec[1]
+                        if(team === otherPieceColor) {
+                            if(horizontal == otherPieceFile && vertical == otherPieceRank) {
+                                ally = true;
+                            };
+                        }
+                        if(horizontal == otherPieceFile && vertical == otherPieceRank) {
+                            capture = true;
+                        };
+                    })
+                    if(!ally) {
+                        if(capture && pawn && horizontal === currentFile) {
+                            break
+                        } else if(capture) {
+                            usableMoves.push([[horizontal], [vertical], "capture"])
+                            break
+                        } else if(pawn && horizontal !== currentFile) {
+                            break
+                        } else {
+                            usableMoves.push([[horizontal], [vertical]])
+                        }
+                    } else if(ally) {
                         break
-                    } else if(capture) {
-                        usableMoves.push([[horizontal], [vertical], "capture"])
-                        break
-                    } else if(pawn && horizontal !== currentFile) {
-                        break
-                    } else {
-                        usableMoves.push([[horizontal], [vertical]])
                     }
-                } else if(ally) {
-                    break
+                } else if(castle) {
+                        vertical = (currentRank)
+                    if(horiz === "right") {
+                        horizontal = (currentFile + i)
+                    } else if(horiz === "left") {
+                        horizontal = (currentFile - i)
+                    };
+                    if(horizontal > 7 || vertical > 7 || horizontal < 0 || vertical < 0) {break};
+                    pieceArray.forEach((rec) => {
+                        let otherPieceFile = rec[3]
+                        let otherPieceRank = rec[4]
+                        let otherPieceColor = rec[1]
+                        if(team === otherPieceColor) {
+                            if(horizontal == otherPieceFile && vertical == otherPieceRank) {
+                                ally = true;
+                            };
+                        }
+                    })
+                    if(!ally) {
+                        if(horizontal === currentFile + 1 || horizontal === currentFile - 1) {
+                            usableMoves.push([[horizontal], [vertical]])
+                        } else if(horizontal === currentFile + 2 || horizontal == currentFile - 2) {
+                            usableMoves.push([[horizontal], [vertical], "castle"])
+                        }
+                    } else if(ally) {
+                        break
+                    }
                 }
             }
         }
@@ -171,30 +201,66 @@ export default function Piece (props) {
                     const h1rook = pieceArray.filter(item => item[2] === "h1");
                     if(!a1rook[0][5]) {
                         const castleZone = [[0,0],[1,0],[2,0],[3,0],[4,0]]
+                        const safeZone = []
+                        const dangerZone = []
                         castleZone.forEach((loc) => {
-                            console.log(checkSafety(loc[0],loc[1]))
+                            const status = checkSafety(loc[0],loc[1]);
+                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
                         })
+                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                            checkDirection(null, "left", 2, false, true)
+                        } else {
+                            console.log("a1 danger zones:", dangerZone)
+                        }
                     }
                     if(!h1rook[0][5]) {
                         const castleZone = [[4,0],[5,0],[6,0],[7,0]]
+                        const safeZone = []
+                        const dangerZone = []
                         castleZone.forEach((loc) => {
-                            console.log(checkSafety(loc[0],loc[1]))
+                            const status = checkSafety(loc[0],loc[1]);
+                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
                         })
+                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                            checkDirection(null, "right", 2, false, true)
+                        } else {
+                            console.log("h1 danger zones:", dangerZone)
+                        }
                     }
                 } else if(team === "black") {
                     const a8rook = pieceArray.filter(item => item[2] === "a8");
                     const h8rook = pieceArray.filter(item => item[2] === "h8");
                     if(!a8rook[0][5]) {
                         const castleZone = [[0,7],[1,7],[2,7],[3,7],[4,7]]
+                        const safeZone = []
+                        const dangerZone = []
                         castleZone.forEach((loc) => {
-                            console.log(checkSafety(loc[0],loc[1]))
+                            const status = checkSafety(loc[0],loc[1]);
+                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
                         })
+                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                            checkDirection(null, "left", 2, false, true)
+                        } else {
+                            console.log("a8 danger zones:", dangerZone)
+                        }
                     }
                     if(!h8rook[0][5]) {
                         const castleZone = [[4,7],[5,7],[6,7],[7,7]]
+                        const safeZone = []
+                        const dangerZone = []
                         castleZone.forEach((loc) => {
-                            console.log(checkSafety(loc[0],loc[1]))
+                            const status = checkSafety(loc[0],loc[1]);
+                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
                         })
+                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                            checkDirection(null, "right", 2, false, true)
+                        } else {
+                            console.log("h8 danger zones:", dangerZone)
+                        }
                     }
                 }
             }
@@ -406,13 +472,19 @@ export default function Piece (props) {
         const newGhosts = []
         availMoves.forEach((loc) => {
                 let capture = false
+                let castle = false
                 if(loc[2] === "capture") {
                     capture = true
+                }
+                if(loc[2] === "castle") {
+                    castle = true
                 }
                 const ghostPosition = `${files[loc[0][0]]}${ranks[loc[1][0]]}`
                 newGhosts.push(<Ghost
                     capturing={capturing}
                     capture={capture}
+                    castling={castling}
+                    castle={castle}
                     team={team}
                     initposition={initposition}
                     move={move}
@@ -451,6 +523,20 @@ export default function Piece (props) {
     const capturing = (newFile, newRank, newPosition) => {
         move(newFile, newRank, newPosition)
         capturePiece(newFile, newRank, `${files[initFile]}${ranks[initRank]}`)
+    }
+
+    const castling = (newFile, newRank, newPosition) => {
+        move(newFile, newRank, newPosition)
+        if(newPosition === "g1") {
+            console.log("move h1 rook")
+        } else if(newPosition === "c1") {
+            console.log("move a1 rook")
+        } else if(newPosition === "g8") {
+            console.log("move h8 rook")
+        } else if(newPosition === "c8") {
+            console.log("move a8 rook")
+        }
+        console.log("you're castling at:", newFile, newRank, newPosition)
     }
 
     const capturePiece =  (file, rank, attacker) => {
