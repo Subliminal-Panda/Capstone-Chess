@@ -75,13 +75,27 @@ export default function Piece (props) {
             pc[6].forEach((atk) => {
                 let fileAttacked = atk[0][0]
                 let rankAttacked = atk[1][0]
-                attacks.push([fileAttacked, rankAttacked, pc[2]])
+                attacks.push([fileAttacked, rankAttacked, pc[2], pc[1]])
             })
         })
         setUnderAttack([attacks])
     }
 
+    const checkSafety = (file, rank) => {
+        const status = []
+        if(underAttack[0] !== undefined) {
+            const filtered = underAttack[0].filter(atk => atk[0] === file && atk[1] === rank && atk[3] !== team )
+            if(filtered.length >= 0) {
 
+                filtered.forEach((atk) => {
+                    status.push(file, rank, "unsafe")
+                })
+            }
+        } else {
+            status.push(file, rank, "safe")
+        }
+        return(status)
+    }
 
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
         updateAttacks();
@@ -151,33 +165,39 @@ export default function Piece (props) {
             checkDirection("down", null, 1)
             checkDirection(null, "right", 1)
             checkDirection(null, "left", 1)
-            // if(!moved && !quickerMoved) {
-            //     if(team === "white") {
-            //         const a1rook = pieceArray.filter(item => item[2] === "a1");
-            //         const h1rook = pieceArray.filter(item => item[2] === "h1");
-            //         const surroundings = [[0,0],[1,0],[2,0],[3,0],[4,0]]
-            //         const filterAtk = (file, rank) => {
-            //             const filtered = underAttack.filter(atk => atk[0] === file && atk[1] === rank)
-            //             return filtered
-            //         }
-            //         surroundings.forEach((sq, idx, arr) => {
-            //             if(filterAtk(sq[0], sq[1], team)[0] != undefined) {
-            //                 console.log("under attack:", filterAtk(sq[0], sq[1], team))
-            //             }
-            //         })
-            //         if(!a1rook[0][5]) {
-            //         }
-            //         if(!h1rook[0][5]) {
-            //         }
-            //     } else if(team === "black") {
-            //         const a8rook = pieceArray.filter(item => item[2] === "a8");
-            //         const h8rook = pieceArray.filter(item => item[2] === "h8");
-            //         if(!a8rook[0][5]) {
-            //         }
-            //         if(!h8rook[0][5]) {
-            //         }
-            //     }
-            // }
+            if(!moved && !quickerMoved) {
+                if(team === "white") {
+                    const a1rook = pieceArray.filter(item => item[2] === "a1");
+                    const h1rook = pieceArray.filter(item => item[2] === "h1");
+                    if(!a1rook[0][5]) {
+                        const castleZone = [[0,0],[1,0],[2,0],[3,0],[4,0]]
+                        castleZone.forEach((loc) => {
+                            console.log(checkSafety(loc[0],loc[1]))
+                        })
+                    }
+                    if(!h1rook[0][5]) {
+                        const castleZone = [[4,0],[5,0],[6,0],[7,0]]
+                        castleZone.forEach((loc) => {
+                            console.log(checkSafety(loc[0],loc[1]))
+                        })
+                    }
+                } else if(team === "black") {
+                    const a8rook = pieceArray.filter(item => item[2] === "a8");
+                    const h8rook = pieceArray.filter(item => item[2] === "h8");
+                    if(!a8rook[0][5]) {
+                        const castleZone = [[0,7],[1,7],[2,7],[3,7],[4,7]]
+                        castleZone.forEach((loc) => {
+                            console.log(checkSafety(loc[0],loc[1]))
+                        })
+                    }
+                    if(!h8rook[0][5]) {
+                        const castleZone = [[4,7],[5,7],[6,7],[7,7]]
+                        castleZone.forEach((loc) => {
+                            console.log(checkSafety(loc[0],loc[1]))
+                        })
+                    }
+                }
+            }
         } else if(type === faChessQueen) {
             checkDirection("up", "right")
             checkDirection("up", "left")
