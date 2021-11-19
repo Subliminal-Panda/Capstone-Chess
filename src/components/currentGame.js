@@ -13,6 +13,10 @@ const CurrentGameContext = createContext({
     setUnderAttack: () => {},
     taken: [],
     setTaken: () => {},
+    castled: [],
+    setCastled: () => {},
+    inCheck: [],
+    setInCheck: () => {},
 })
 
 export default CurrentGameContext

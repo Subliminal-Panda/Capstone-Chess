@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Table from "./table";
 import CurrentGameContext from './currentGame';
 
@@ -9,9 +9,12 @@ export default function App () {
   const [ locations, setLocations ] = useState([])
   const [ taken, setTaken ] = useState([])
   const [ underAttack, setUnderAttack ] = useState([])
+  const [ castled, setCastled ] = useState([])
+  const [ inCheck, setInCheck ] = useState([[],[]])
+
   return (
     <div className='app'>
-      <CurrentGameContext.Provider value={{ activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack }}>
+      <CurrentGameContext.Provider value={{ activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck }}>
         <h1 className="main-heading">Computery Chess</h1>
         <Table />
       </CurrentGameContext.Provider>

@@ -16,31 +16,48 @@
 }
 
 .chess-piece {
+    width: 100%;
+    height: 100%;
+    display: flex;
     font-size: 7vmin;
     position: relative;
-    align-self: center;
-    justify-self: center;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-clip: border-box;
+    z-index: 1;
 }
 
 .hovered-piece {
     * {
         color: $teal;
+        font-size: 7.75vmin;
     }
 }
 
 .selected-piece {
     * {
         color: $dark-teal;
+
+        &:hover {
+            font-size: 7.75vmin
+        }
     }
+
 }
 
 .ghost {
+    width: 100%;
+    height: 100%;
+    display: flex;
     font-size: 6vmin;
     position: relative;
-    align-self: center;
-    justify-self: center;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-clip: border-box;
     color: $blue;
-    z-index: 1;
+    z-index: 2;
     opacity: .6;
 
     &:hover {

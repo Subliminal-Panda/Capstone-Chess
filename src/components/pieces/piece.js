@@ -17,6 +17,7 @@ export default function Piece (props) {
     const { locations, setLocations } = useContext(CurrentGameContext)
     const { taken, setTaken } = useContext(CurrentGameContext)
     const { underAttack, setUnderAttack } = useContext(CurrentGameContext)
+    const { castled, setCastled } = useContext(CurrentGameContext)
 
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(`${files[initFile]}${ranks[initRank]}`)
@@ -24,6 +25,7 @@ export default function Piece (props) {
     const [ currentFile, setCurrentFile ] = useState(initFile)
     const [ moved, setMoved ] = useState(false)
     let quickerMoved = moved
+    const [ checked, setChecked ] = useState(false)
     const [ availMoves, setAvailMoves ] = useState([]);
     const [ selected, setSelected ] = useState(false);
     const [ ghosts, setGhosts ] = useState([])
@@ -81,10 +83,10 @@ export default function Piece (props) {
         setUnderAttack([attacks])
     }
 
-    const checkSafety = (file, rank) => {
+    const checkSafety = (file, rank, color = team) => {
         const status = []
         if(underAttack[0] !== undefined) {
-            const filtered = underAttack[0].filter(atk => atk[0] === file && atk[1] === rank && atk[3] !== team )
+            const filtered = underAttack[0].filter(atk => atk[0] === file && atk[1] === rank && atk[3] !== color )
             if(filtered[0] !== undefined) {
                 filtered.forEach((atk) => {
                     status.push(file, rank, "unsafe", atk)
@@ -101,7 +103,11 @@ export default function Piece (props) {
     const determineMoves = (type, currentFile, currentRank, pieceArray) => {
         updateAttacks();
         const usableMoves = []
-        const checkDirection = (vert, horiz, dist = 7, pawn = false, castle = false) => {
+        const attacking = []
+        const pawnMoves = []
+        const kingMoves = []
+        const friendlyFire = []
+        const checkDirection = (vert, horiz, dist = 7, pawn = false, castle = false, king = false) => {
             for(let i = 1; i < (dist + 1); i++) {
                 let horizontal = currentFile;
                 let vertical = currentRank;
@@ -132,18 +138,36 @@ export default function Piece (props) {
                             capture = true;
                         };
                     })
-                    if(!ally) {
-                        if(capture && pawn && horizontal === currentFile) {
+                    if(king) {
+                        if(!ally) {
+                            kingMoves.push([[horizontal], [vertical]])
+                            if(capture && checkSafety(horizontal, vertical)[2] === "safe") {
+                                usableMoves.push([[horizontal], [vertical], "capture"])
+                                break
+                            } else if(checkSafety(horizontal, vertical)[2] === 'safe') {
+                                usableMoves.push([[horizontal], [vertical]])
+                            }
+                        } else if(ally) {
+                            friendlyFire.push([[horizontal], [vertical]])
                             break
-                        } else if(capture) {
+                        }
+                    }
+                    if(!ally && !king) {
+                        if(capture && pawn && horizontal === currentFile) {
+                            //pawn moving straight up
+                            break
+                        } else if(capture && !king) {
                             usableMoves.push([[horizontal], [vertical], "capture"])
+                            pawnMoves.push([[horizontal], [vertical], "capture"])
                             break
                         } else if(pawn && horizontal !== currentFile) {
+                            pawnMoves.push([[horizontal], [vertical]])
                             break
-                        } else {
+                        } else if (!king) {
                             usableMoves.push([[horizontal], [vertical]])
                         }
                     } else if(ally) {
+                        friendlyFire.push([[horizontal], [vertical]])
                         break
                     }
                 } else if(castle) {
@@ -166,7 +190,7 @@ export default function Piece (props) {
                     })
                     if(!ally) {
                         if(horizontal === currentFile + 1 || horizontal === currentFile - 1) {
-                            usableMoves.push([[horizontal], [vertical]])
+                            null
                         } else if(horizontal === currentFile + 2 || horizontal == currentFile - 2) {
                             usableMoves.push([[horizontal], [vertical], "castle"])
                         }
@@ -187,79 +211,79 @@ export default function Piece (props) {
                 { !quickerMoved ? checkDirection("down", null, 2, true) : checkDirection("down", null, 1, true) }
             }
         } else if(type === faChessKing) {
-            checkDirection("up", "right", 1)
-            checkDirection("up", "left", 1)
-            checkDirection("up", null, 1)
-            checkDirection("down", "right", 1)
-            checkDirection("down", "left", 1)
-            checkDirection("down", null, 1)
-            checkDirection(null, "right", 1)
-            checkDirection(null, "left", 1)
+            checkDirection("up", "right", 1, false, false, true)
+            checkDirection("up", "left", 1, false, false, true)
+            checkDirection("up", null, 1, false, false, true)
+            checkDirection("down", "right", 1, false, false, true)
+            checkDirection("down", "left", 1, false, false, true)
+            checkDirection("down", null, 1, false, false, true)
+            checkDirection(null, "right", 1, false, false, true)
+            checkDirection(null, "left", 1, false, false, true)
             if(!moved && !quickerMoved) {
                 if(team === "white") {
                     const a1rook = pieceArray.filter(item => item[2] === "a1");
                     const h1rook = pieceArray.filter(item => item[2] === "h1");
-                    if(!a1rook[0][5]) {
-                        const castleZone = [[0,0],[1,0],[2,0],[3,0],[4,0]]
-                        const safeZone = []
-                        const dangerZone = []
-                        castleZone.forEach((loc) => {
-                            const status = checkSafety(loc[0],loc[1]);
-                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
-                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
-                        })
-                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
-                            checkDirection(null, "left", 2, false, true)
-                        } else {
-                            console.log("a1 danger zones:", dangerZone)
+                    if(a1rook[0] !== undefined) {
+                        if(!a1rook[0][5]) {
+                            const castleZone = [[0,0],[1,0],[2,0],[3,0],[4,0]]
+                            const safeZone = []
+                            const dangerZone = []
+                            castleZone.forEach((loc) => {
+                                const status = checkSafety(loc[0],loc[1]);
+                                if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                                else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
+                            })
+                            if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                                checkDirection(null, "left", 2, false, true, false)
+                            }
                         }
                     }
-                    if(!h1rook[0][5]) {
-                        const castleZone = [[4,0],[5,0],[6,0],[7,0]]
-                        const safeZone = []
-                        const dangerZone = []
-                        castleZone.forEach((loc) => {
-                            const status = checkSafety(loc[0],loc[1]);
-                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
-                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
-                        })
-                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
-                            checkDirection(null, "right", 2, false, true)
-                        } else {
-                            console.log("h1 danger zones:", dangerZone)
+                    if(h1rook[0] !== undefined) {
+                        if(!h1rook[0][5]) {
+                            const castleZone = [[4,0],[5,0],[6,0],[7,0]]
+                            const safeZone = []
+                            const dangerZone = []
+                            castleZone.forEach((loc) => {
+                                const status = checkSafety(loc[0],loc[1]);
+                                if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                                else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
+                            })
+                            if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                                checkDirection(null, "right", 2, false, true, false)
+                            }
                         }
                     }
                 } else if(team === "black") {
                     const a8rook = pieceArray.filter(item => item[2] === "a8");
                     const h8rook = pieceArray.filter(item => item[2] === "h8");
-                    if(!a8rook[0][5]) {
-                        const castleZone = [[0,7],[1,7],[2,7],[3,7],[4,7]]
-                        const safeZone = []
-                        const dangerZone = []
-                        castleZone.forEach((loc) => {
-                            const status = checkSafety(loc[0],loc[1]);
-                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
-                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
-                        })
-                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
-                            checkDirection(null, "left", 2, false, true)
-                        } else {
-                            console.log("a8 danger zones:", dangerZone)
+                    if(a8rook[0] !== undefined) {
+                        if(!a8rook[0][5]) {
+                            const castleZone = [[0,7],[1,7],[2,7],[3,7],[4,7]]
+                            const safeZone = []
+                            const dangerZone = []
+                            castleZone.forEach((loc) => {
+                                const status = checkSafety(loc[0],loc[1]);
+                                if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                                else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
+                            })
+                            if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                                checkDirection(null, "left", 2, false, true, false)
+                            }
                         }
                     }
-                    if(!h8rook[0][5]) {
-                        const castleZone = [[4,7],[5,7],[6,7],[7,7]]
-                        const safeZone = []
-                        const dangerZone = []
-                        castleZone.forEach((loc) => {
-                            const status = checkSafety(loc[0],loc[1]);
-                            if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
-                            else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
-                        })
-                        if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
-                            checkDirection(null, "right", 2, false, true)
-                        } else {
-                            console.log("h8 danger zones:", dangerZone)
+                    if(h8rook[0] !== undefined) {
+                        if(!h8rook[0][5]) {
+                            const castleZone = [[4,7],[5,7],[6,7],[7,7]]
+                            const safeZone = []
+                            const dangerZone = []
+                            castleZone.forEach((loc) => {
+                                const status = checkSafety(loc[0],loc[1]);
+                                if(status[2] === "safe") {safeZone.push([status[0], status[1]])}
+                                else if(status[2] === "unsafe") {dangerZone.push([status[0], status[1]])}
+                            })
+                            if(castleZone.length === safeZone.length && dangerZone[0] === undefined) {
+                                checkDirection(null, "right", 2, false, true, false)
+                            }
                         }
                     }
                 }
@@ -305,6 +329,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile + 2],[currentRank + 1]])}
                     if(capture) {usableMoves.push([[currentFile + 2],[currentRank + 1], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile + 2],[currentRank + 1]])}
                 }
                 if(currentRank - 1 >= 0) {
                     let ally = false;
@@ -327,6 +352,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile + 2],[currentRank - 1]])}
                     if(capture) {usableMoves.push([[currentFile + 2],[currentRank - 1], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile + 2],[currentRank - 1]])}
                 }
             }
             if(currentFile - 2 >= 0){
@@ -350,6 +376,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile - 2],[currentRank + 1]])}
                     if(capture) {usableMoves.push([[currentFile - 2],[currentRank + 1], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile - 2],[currentRank + 1]])}
                 }
                 if(currentRank - 1 >= 0) {
                     let ally = false;
@@ -371,6 +398,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile - 2],[currentRank - 1]])}
                     if(capture) {usableMoves.push([[currentFile - 2],[currentRank - 1], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile - 2],[currentRank - 1]])}
                 }
             }
             if(currentFile + 1 < 8){
@@ -394,6 +422,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile + 1],[currentRank + 2]])}
                     if(capture) {usableMoves.push([[currentFile + 1],[currentRank + 2], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile + 1],[currentRank + 2]])}
                 }
                 if(currentRank - 2 >= 0) {
                     let ally = false;
@@ -415,6 +444,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile + 1],[currentRank - 2]])}
                     if(capture) {usableMoves.push([[currentFile + 1],[currentRank - 2], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile + 1],[currentRank - 2]])}
                 }
             }
             if(currentFile - 1 >= 0){
@@ -438,6 +468,7 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile - 1],[currentRank + 2]])}
                     if(capture) {usableMoves.push([[currentFile - 1],[currentRank + 2], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile - 1],[currentRank + 2]])}
                 }
                 if(currentRank - 2 >= 0) {
                     let ally = false;
@@ -459,10 +490,35 @@ export default function Piece (props) {
                     })
                     if(!ally && !capture) {usableMoves.push([[currentFile - 1],[currentRank - 2]])}
                     if(capture) {usableMoves.push([[currentFile - 1],[currentRank - 2], "capture"])}
+                    if(ally) {friendlyFire.push([[currentFile - 1],[currentRank - 2]])}
                 }
             }
         }
-        record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank, quickerMoved, usableMoves)
+        if(type === faChessPawn) {
+            pawnMoves.forEach((mv) => {
+                attacking.push(mv)
+            })
+            friendlyFire.forEach((mv) => {
+                attacking.push(mv)
+            })
+            record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank, quickerMoved, attacking)
+        }else if(type === faChessKing) {
+            friendlyFire.forEach((mv) => {
+                attacking.push(mv)
+            })
+            usableMoves.forEach((mv) => {
+                attacking.push(mv)
+            })
+            record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank, quickerMoved, attacking)
+        } else {
+            friendlyFire.forEach((mv) => {
+                attacking.push(mv)
+            })
+            usableMoves.forEach((mv) => {
+                attacking.push(mv)
+            })
+            record(type, team, `${files[initFile]}${ranks[initRank]}`, currentFile, currentRank, quickerMoved, attacking)
+        }
         setAvailMoves(usableMoves);
         updateAttacks();
     }
@@ -528,15 +584,52 @@ export default function Piece (props) {
     const castling = (newFile, newRank, newPosition) => {
         move(newFile, newRank, newPosition)
         if(newPosition === "g1") {
-            console.log("move h1 rook")
+            castled.push("h1")
         } else if(newPosition === "c1") {
-            console.log("move a1 rook")
+            castled.push("a1")
         } else if(newPosition === "g8") {
-            console.log("move h8 rook")
+            castled.push("h8")
         } else if(newPosition === "c8") {
-            console.log("move a8 rook")
+            castled.push("a8")
         }
-        console.log("you're castling at:", newFile, newRank, newPosition)
+        moveRook();
+    }
+
+    const moveRook = () => {
+        if(type === faChessRook && !quickerMoved && !moved) {
+            castled.forEach((instance) => {
+                if(instance === `${files[initFile]}${ranks[initRank]}`) {
+                    if(instance === "a1") {
+                        setCurrentFile(3)
+                        setCurrentPosition(`${files[3]}${ranks[0]}`)
+                        setMoved(true)
+                        quickerMoved = true;
+                        determineMoves(type, 3, 0, locations)
+                    }
+                    if(instance === "h1") {
+                        setCurrentFile(5)
+                        setCurrentPosition(`${files[5]}${ranks[0]}`)
+                        setMoved(true)
+                        quickerMoved = true;
+                        determineMoves(type, 5, 0, locations)
+                    }
+                    if(instance === "a8") {
+                        setCurrentFile(3)
+                        setCurrentPosition(`${files[3]}${ranks[7]}`)
+                        setMoved(true)
+                        quickerMoved = true;
+                        determineMoves(type, 3, 7, locations)
+                    }
+                    if(instance === "h8") {
+                        setCurrentFile(5)
+                        setCurrentPosition(`${files[5]}${ranks[7]}`)
+                        setMoved(true)
+                        quickerMoved = true;
+                        determineMoves(type, 5, 7, locations)
+                    }
+                }
+            })
+        }
     }
 
     const capturePiece =  (file, rank, attacker) => {
@@ -551,20 +644,30 @@ export default function Piece (props) {
         })
     }
 
+    useEffect(() => {
+        if(locations.length + taken.length > 31 && checked === false ) {
+            moveRook()
+            determineMoves(type, currentFile, currentRank, locations);
+            updateAttacks();
+            setChecked(true)
+        }
+    })
 
     useEffect(() => {
         determineMoves(type, currentFile, currentRank, locations);
         updateAttacks();
+        setChecked(false)
     },[]);
 
     useEffect(() => {
         determineMoves(type, currentFile, currentRank, locations);
-    },[locations])
+        setChecked(false)
+    },[activePlayer])
 
     return (
         <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
             {ghosts}
-            <FontAwesomeIcon
+            <div
             onClick={ activePlayer === team ? () => toggleSelected() : null }
             onMouseOver={ activePlayer === team ? () => handleHover() : null }
             onMouseOut={ activePlayer === team ? () => handleUnhover() : null }
@@ -572,9 +675,11 @@ export default function Piece (props) {
             style={{
                 gridArea: currentPosition,
                 color: team,
-            }}
-            icon={ type }
-            />
+                }}>
+                <FontAwesomeIcon
+                icon={ type }
+                />
+            </div>
         </div>
     )
 }

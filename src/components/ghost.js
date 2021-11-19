@@ -5,8 +5,7 @@ export default function Ghost(props) {
     const { file, rank, position, type, move, initposition, team, capture, castle, capturing, castling } = props
 
     return (
-        <FontAwesomeIcon
-
+        <div
         onClick={ capture ? () => capturing(file, rank, position) : castle ? () => castling(file, rank, position) : () => move(file, rank, position)}
         initposition={initposition}
         key={`ghost${position}`}
@@ -16,8 +15,10 @@ export default function Ghost(props) {
         className={ capture ? `capture ghost ${team}ghost` : castle ? `castle ghost ${team}ghost` : `ghost ${team}ghost` }
         style={{
             gridArea: `${position}`,
-        }}
+        }}>
+        <FontAwesomeIcon
         icon={ type }
         />
+        </div>
     )
 }

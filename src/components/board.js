@@ -12,11 +12,13 @@ export default function Board (props) {
     let setup = []
 
     const [ squares, setSquares ] = useState([])
+    const [ checked, setChecked ] = useState(false)
 
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { pieces, setPieces } = useContext(CurrentGameContext)
+    const { underAttack, setUnderAttack } = useContext(CurrentGameContext)
     const { locations, setLocations } = useContext(CurrentGameContext)
-    const { taken, setTaken } = useContext(CurrentGameContext)
+    const { inCheck, setInCheck } = useContext(CurrentGameContext)
 
     const makeSquares = () => {
         let squareSet = []
@@ -77,7 +79,66 @@ export default function Board (props) {
             setPieces([setup])
     }
 
+    const findCheck = () => {
+        let checks = [[],[]]
+        const checkSafety = (file, rank, team) => {
+            const status = []
+            if(underAttack[0] !== undefined) {
+                const filtered = underAttack[0].filter(atk => atk[0] === file && atk[1] === rank && atk[3] !== team )
+                if(filtered[0] !== undefined) {
+                    filtered.forEach((atk) => {
+                        status.push(file, rank, "unsafe", atk)
+                    })
+                } else {
+                    status.push(file, rank, "safe", filtered)
+                }
+            } else {
+                status.push(file, rank, "safe", [])
+            }
+            return(status)
+        }
+        const whiteK = locations.filter(item => item[2] === "e1");
+        const blackK = locations.filter(item => item[2] === "e8");
+        const whiteKing = whiteK.filter((pc, index, arr) =>
+        index === arr.findIndex((oth) => (
+        oth[2] === pc[2]
+        )))
+        const blackKing = blackK.filter((pc, index, arr) =>
+        index === arr.findIndex((oth) => (
+        oth[2] === pc[2]
+        )))
+        if(whiteKing[0] !== undefined) {
+            const wkf = whiteKing[0][3]
+            const wkr = whiteKing[0][4]
+            const wkstatus = checkSafety(wkf, wkr, "white")
+            if(wkstatus[2] === "unsafe") {
+                checks[0] = "white"
+            } else {
+                checks[0] = []
+            }
+        }
+        if(blackKing[0] !== undefined) {
+            const bkf = blackKing[0][3]
+            const bkr = blackKing[0][4]
+            const bkstatus = checkSafety(bkf, bkr, "black")
+            if(bkstatus[2] === "unsafe") {
+                checks[1] = "black"
+            } else {
+                checks[1] = []
+            }
+        }
+        setInCheck(checks)
+    }
 
+    useEffect(() => {
+        if(checked === false) {
+            findCheck();
+            setChecked(true)
+        }
+    })
+    useEffect(() => {
+        setChecked(false)
+    },[locations, activePlayer])
 
     useEffect(() => {
         setActivePlayer("white")
