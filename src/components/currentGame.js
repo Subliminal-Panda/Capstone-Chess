@@ -17,6 +17,10 @@ const CurrentGameContext = createContext({
     setCastled: () => {},
     inCheck: [],
     setInCheck: () => {},
+    assassinAttempts: [],
+    setAssassinAttempts: () => {},
+    moving: "",
+    setMoving: () => {},
 })
 
 export default CurrentGameContext

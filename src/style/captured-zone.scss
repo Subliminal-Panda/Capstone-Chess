@@ -1,8 +1,10 @@
 ﻿.captured-zone {
-    width: calc((95vw - (95vmin - 150px)) / 2);
+    width: calc((95vw - (100vmin - 100px)) / 2);
     height: calc(95vh - 150px);
-    border: 2px solid blue;
-    background-color: rgb(127, 127, 127);
+
+    border-radius: 3rem;
+    margin: 1rem;
+
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -13,15 +15,33 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        font-size: 3.5rem;
+        font-size: 5.25rem;
     }
     .in-check {
-        font-size: 10rem;
+        font-size: 11rem;
         color: $warning;
     }
 }
 
+.player-one-captured {
+    border: .5rem solid white;
+    background-color: rgb(165, 165, 165);
+}
+.player-two-captured {
+    border: .5rem solid rgb(0, 0, 0);
+    background-color: rgb(85, 85, 85);
+}
+
 .taken {
-    font-size: 3.5vmax;
+    font-size: 5vmax;
     margin: 1vmax;
+}
+
+.player-one {
+    color: white;
+    font-weight: 900;
+}
+.player-two {
+    color: black;
+    font-weight: 900;
 }

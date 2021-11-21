@@ -58,9 +58,10 @@ export default function CapturedZone(props) {
     }
 
     return (
-        <div className="captured-zone">
-            <h1>{props.player}'s Captured Pieces:</h1>
+        <div className={ props.player === "Player One" ? "player-one-captured captured-zone" : "player-two-captured captured-zone" }>
+            <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>{props.player}</h1>
             { checks[0] !== undefined ? <h1 className="in-check">IN CHECK!</h1> : null }
+            <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>Captured Pieces:</h1>
             <div>
             {captures}
             </div>

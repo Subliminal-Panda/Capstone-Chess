@@ -50,7 +50,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    font-size: 6vmin;
+    font-size: 4.5vmin;
     position: relative;
     align-items: center;
     justify-content: center;
@@ -66,18 +66,27 @@
     }
 }
 
+.promote {
+    color: rgb(253, 255, 152);
+    z-index: 2;
+    opacity: .75;
+
+    &:hover {
+        font-size: 9vmin;
+    }
+}
+
 .capture {
     color: $warning;
+    z-index: 2;
+    opacity: .75;
 }
 
 .castle {
-    color: $charcoal;
+    color: rgb(255, 253, 128);
+    z-index: 2;
 }
 
-.promote {
-    color: rgb(0, 204, 126);
-    z-index: 3;
-}
 
 text {
     -webkit-user-select: none;

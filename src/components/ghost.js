@@ -5,16 +5,16 @@ export default function Ghost(props) {
     const { file, rank, position, type, move, initposition, team, capture, castle, promote, capturing, castling, promoting } = props
 
     const determineFunctions = () => {
-        move(file, rank, position);
-        if(capture) {
-            capturing(file, rank, position)
-        }
         if(promote) {
             promoting(file, rank, position)
         }
-        if(castle) {
-            castling(file, rank, position)
+        if(capture) {
+            capturing(file, rank, position)
         }
+        if(castle) {
+            castling(position)
+        }
+        move(file, rank, position);
     }
 
     const determineClassName = () => {

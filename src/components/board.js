@@ -19,6 +19,8 @@ export default function Board (props) {
     const { underAttack, setUnderAttack } = useContext(CurrentGameContext)
     const { locations, setLocations } = useContext(CurrentGameContext)
     const { inCheck, setInCheck } = useContext(CurrentGameContext)
+    const { assassinAttempts, setAssassinAttempts } = useContext(CurrentGameContext)
+    const { moving, setMoving } = useContext(CurrentGameContext)
 
     const makeSquares = () => {
         let squareSet = []
@@ -95,6 +97,7 @@ export default function Board (props) {
             } else {
                 status.push(file, rank, "safe", [])
             }
+            console.log("status of safety:", status)
             return(status)
         }
         const whiteK = locations.filter(item => item[2] === "e1");
@@ -115,6 +118,7 @@ export default function Board (props) {
                 checks[0] = "white"
             } else {
                 checks[0] = []
+                console.log("incheck removed:", whiteKing)
             }
         }
         if(blackKing[0] !== undefined) {
@@ -125,9 +129,15 @@ export default function Board (props) {
                 checks[1] = "black"
             } else {
                 checks[1] = []
+                console.log("incheck removed:", blackKing)
             }
         }
-        setInCheck(checks)
+        if(assassinAttempts[0] !== undefined) {
+            if(assassinAttempts[0] !== "" && assassinAttempts[1] !== "") {
+            console.log("assassin attempts from board:", assassinAttempts)
+            setInCheck(checks)
+            }
+        }
     }
 
     useEffect(() => {
@@ -138,7 +148,7 @@ export default function Board (props) {
     })
     useEffect(() => {
         setChecked(false)
-    },[locations, activePlayer])
+    },[moving, assassinAttempts])
 
     useEffect(() => {
         setActivePlayer("white")
