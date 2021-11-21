@@ -838,8 +838,8 @@ export default function Piece (props) {
                 if(castled[0] !== undefined && castled.length < 3) {
                     moveRook();
                 }
-                determineMoves(quickType ? quickType : pieceType ? pieceType : type , currentFile, currentRank, locations);
-                // updateAttacks();
+                determineMoves(pieceType ? pieceType : type , currentFile, currentRank, locations);
+                updateAttacks();
                 setChecked(true)
         }
     })
