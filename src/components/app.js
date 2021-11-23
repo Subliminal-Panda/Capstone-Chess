@@ -10,13 +10,14 @@ export default function App () {
   const [ taken, setTaken ] = useState([])
   const [ underAttack, setUnderAttack ] = useState([])
   const [ castled, setCastled ] = useState([])
-  const [ inCheck, setInCheck ] = useState(['',''])
+  const [ inCheck, setInCheck ] = useState([])
   const [ assassinAttempts, setAssassinAttempts ] = useState([])
   const [ moving, setMoving ] = useState(false)
+  const [ gameEnd, setGameEnd ] = useState(false)
 
   return (
     <div className='app'>
-      <CurrentGameContext.Provider value={{ activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck, assassinAttempts, setAssassinAttempts, moving, setMoving }}>
+      <CurrentGameContext.Provider value={{ activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck, assassinAttempts, setAssassinAttempts, moving, setMoving, gameEnd, setGameEnd }}>
         <h1 className={ activePlayer === "white" ? "player-one main-heading" : "player-two main-heading" }>{activePlayer === "white" ? "PLAYER ONE" : "PLAYER TWO"}'S TURN</h1>
         <Table />
       </CurrentGameContext.Provider>

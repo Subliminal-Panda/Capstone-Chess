@@ -20,7 +20,9 @@ export default function Board (props) {
     const { locations, setLocations } = useContext(CurrentGameContext)
     const { inCheck, setInCheck } = useContext(CurrentGameContext)
     const { assassinAttempts, setAssassinAttempts } = useContext(CurrentGameContext)
+    const { taken, setTaken } = useContext(CurrentGameContext)
     const { moving, setMoving } = useContext(CurrentGameContext)
+    const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
 
     const makeSquares = () => {
         let squareSet = []
@@ -83,6 +85,17 @@ export default function Board (props) {
 
     const findCheck = () => {
         let checks = [[],[]]
+        setAssassinAttempts(assassinAttempts.filter((atk, index, arr) =>
+        index === arr.findIndex((oth) => (
+        oth[2] !== atk[2]
+        ))))
+        assassinAttempts.forEach((atk, idx) => {
+            taken.forEach((pc) => {
+                if(pc[1] === atk[1]) {
+                    setAssassinAttempts(assassinAttempts.splice(idx, 1))
+                }
+            })
+        })
         const checkSafety = (file, rank, team) => {
             const status = []
             if(underAttack[0] !== undefined) {
@@ -97,7 +110,7 @@ export default function Board (props) {
             } else {
                 status.push(file, rank, "safe", [])
             }
-            console.log("status of safety:", status)
+            // console.log("status of safety:", status)
             return(status)
         }
         const whiteK = locations.filter(item => item[2] === "e1");
@@ -118,7 +131,7 @@ export default function Board (props) {
                 checks[0] = "white"
             } else {
                 checks[0] = []
-                console.log("incheck removed:", whiteKing)
+                // console.log("incheck removed:", whiteKing)
             }
         }
         if(blackKing[0] !== undefined) {
@@ -129,26 +142,61 @@ export default function Board (props) {
                 checks[1] = "black"
             } else {
                 checks[1] = []
-                console.log("incheck removed:", blackKing)
+                // console.log("incheck removed:", blackKing)
             }
         }
-        if(assassinAttempts[0] !== undefined) {
-            if(assassinAttempts[0] !== "" && assassinAttempts[1] !== "") {
-            console.log("assassin attempts from board:", assassinAttempts)
-            setInCheck(checks)
+        setInCheck(checks)
+        // console.log("assassin attempts from board:", assassinAttempts)
+    }
+
+    const findCheckMate = () => {
+        const movablePieces = []
+        locations.forEach((loc, idx, arr) => {
+            // console.log("location:", loc)
+            if(loc[7][0] !== undefined) {
+                if(loc[1] === inCheck[0] || loc[1] === inCheck[1])
+                movablePieces.push(loc)
             }
+        })
+        if(movablePieces[0] === undefined) {
+                console.log("active player:", activePlayer, inCheck)
+                if(activePlayer === "white" && inCheck[1] === "black") {
+                    console.log("white wins!!")
+                    setGameEnd(`Checkmate. ${activePlayer} wins.`)
+                }
+                if(activePlayer === "black" && inCheck[0] === "white") {
+                    console.log("black wins!!")
+                    setGameEnd(`Checkmate. ${activePlayer} wins.`)
+                }
+                console.log("in check:", inCheck)
+            // setTimeout(() => {
+            //     if(movablePieces[0] === undefined) {
+            //         if(activePlayer === inCheck[0] || activePlayer === inCheck[1]) {
+            //             console.log("We definitely found checkmate!")
+            //         }
+            //     }
+            // }, 500)
+        } else {
+            console.log("pieces that can move:", movablePieces)
         }
     }
 
     useEffect(() => {
-        if(checked === false) {
-            findCheck();
-            setChecked(true)
+        // if(checked === false) {
+        //     setChecked(true)
+        // }
+        if(locations.length + taken.length > 31 && checked === false) {
+            if(!moving) {
+                findCheckMate();
+                findCheck();
+                setChecked(true);
+            }
         }
     })
+
     useEffect(() => {
         setChecked(false)
-    },[moving, assassinAttempts])
+    },[moving])
 
     useEffect(() => {
         setActivePlayer("white")

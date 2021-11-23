@@ -21,6 +21,8 @@ const CurrentGameContext = createContext({
     setAssassinAttempts: () => {},
     moving: "",
     setMoving: () => {},
+    gameEnd: "",
+    setGameEnd: () => {},
 })
 
 export default CurrentGameContext

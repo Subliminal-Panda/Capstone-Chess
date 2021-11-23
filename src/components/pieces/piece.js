@@ -31,6 +31,7 @@ export default function Piece (props) {
     const { moving, setMoving } = useContext(CurrentGameContext)
 
     const [ pieceType, setPieceType ] = useState(type)
+    const [ promoted, setPromoted ] = useState(false)
     const [ hover, setHover ] = useState(false);
     const [ currentPosition, setCurrentPosition ] = useState(self)
     const [ currentRank, setCurrentRank ] = useState(initRank)
@@ -42,7 +43,7 @@ export default function Piece (props) {
     const [ moves, setMoves ] = useState([])
 
     let quickerMoved = moved
-    let quickType = type
+    let quickType = false
     let availMoves = []
 
     const record = (  typeToRecord , team, initPosition, currentFile, currentRank, moved, attacking, availMoves, lookPast) => {
@@ -133,6 +134,8 @@ export default function Piece (props) {
         let pawnMoves = []
         let friendlyFire = []
         let lookPast = []
+        let assassin = false;
+
         const checkDirection = (vert, horiz, dist = 7, pawn = false, castle = false, king = false) => {
             const blockedBy = []
             let enemyKing = false;
@@ -168,9 +171,38 @@ export default function Piece (props) {
                             if(horizontal == otherPieceFile && vertical == otherPieceRank) {
                             capture = true;
                             if(rec[2] === "e1" || rec[2] === "e8") {
-                                if(blockedBy.length < 2) {
+                                const attackArea = []
+                                let vertIncrement = 0
+                                let horizIncrement = 0
+                                if(vert === "up") {
+                                    vertIncrement = 1
+                                } else if(vert === "down") {
+                                    vertIncrement = -1
+                                } else {
+                                    vertIncrement = 0
+                                }
+                                if(horiz === "right") {
+                                    horizIncrement = 1
+                                } else if(horiz === "left") {
+                                    horizIncrement = -1
+                                } else {
+                                    horizIncrement = 0
+                                }
+                                if(horizIncrement !== 0) {
+                                    for(i = 0; i <= Math.abs(currentFile - horizontal); i++) {
+                                        attackArea.push([currentFile + (i * horizIncrement), currentRank + (i * vertIncrement)])
+                                    }
+                                } else if(vertIncrement !== 0) {
+                                    for(i = 0; i <= Math.abs(currentRank - vertical); i++) {
+                                        attackArea.push([currentFile + (i * horizIncrement), currentRank + (i * vertIncrement)])
+                                    }
+                                }
+                                if(blockedBy.length < 2 && !pawn) {
                                     enemyKing = true;
-                                    directionOfAttack = [horiz, vert, horizontal,vertical, blockedBy[0] !== undefined ?blockedBy[0] : false ]
+                                    directionOfAttack = [horiz, vert, attackArea, blockedBy[0] !== undefined ? blockedBy[0] : false ]
+                                } else if(pawn && horizontal !== currentFile) {
+                                    enemyKing = true;
+                                    directionOfAttack = [horiz, vert, attackArea, blockedBy[0] !== undefined ? blockedBy[0] : false ]
                                 }
                             }
                             blockedBy.push(rec)
@@ -280,12 +312,15 @@ export default function Piece (props) {
                     }
                 }
             }
-            if(enemyKing && !directionOfAttack[4]) {
-                console.log(self, currentFile, currentRank, "I put the enemy in check! direction of attack:", directionOfAttack)
-                assassinAttempts.push([directionOfAttack, self, currentFile, currentRank])
-                setAssassinAttempts(assassinAttempts.filter((atmpt, idx, arr) => idx === arr.findIndex((oth) => (
-                    oth[1] === atmpt[1]
-                ))))
+            if(enemyKing && !directionOfAttack[3]) {
+                assassin = true;
+                // console.log(self, currentFile, currentRank, "I put the enemy in check! direction of attack:", directionOfAttack)
+                assassinAttempts.push([directionOfAttack, self, currentFile, currentRank, team])
+                // setAssassinAttempts(assassinAttempts.filter((atk, index, arr) =>
+                // index === arr.findIndex((oth) => (
+                // oth[2] !== atk[2]
+                // ))))
+                // console.log("assassin attempts from piece:", self, assassinAttempts)
                 let checks = inCheck
                 if(team === "white") {
                     checks[1] = ("black")
@@ -293,8 +328,8 @@ export default function Piece (props) {
                     checks[0] = ("white")
                 }
                 setInCheck(checks)
-            } else if(enemyKing && directionOfAttack[4][1] !== team) {
-                console.log(team, self, currentFile, currentRank, "A piece is pinned! direction of attack:", directionOfAttack)
+            } else if(enemyKing && directionOfAttack[3][1] !== team) {
+                // console.log(team, self, currentFile, currentRank, "A piece is pinned! direction of attack:", directionOfAttack)
             }
         }
         if(typeToMove  === faChessPawn) {
@@ -599,6 +634,7 @@ export default function Piece (props) {
                 }
             }
         }
+
         usableMoves = usableMoves.filter((mv, idx, arr) => idx === arr.findIndex((oth) => (
             oth === mv
         )))
@@ -617,6 +653,30 @@ export default function Piece (props) {
         availMoves = usableMoves.filter((mv, idx, arr) => idx === arr.findIndex((oth) => (
             oth[0][0] === mv[0][0] && oth[1][0] === mv [1][0]
         )))
+        // console.log("assassin attempts from each piece:", assassinAttempts)
+        if(typeToMove !== faChessKing) {
+
+            if(inCheck[0] === team || inCheck[1] === team) {
+                const inCheckMoves = []
+                availMoves.forEach((mv, idx, arr) => {
+                    assassinAttempts.forEach((atkr, indx, array) => {
+                        if(atkr[4] !== team) {
+                            atkr[0][2].forEach((move, inx, arry) => {
+                                // console.log("attacker moves from defender perspective:", move, "my moves:", mv)
+                                if(move[0] === mv[0][0] && move[1] === mv[1][0]) {
+                                    inCheckMoves.push(mv)
+                                    console.log("I have an available move while the king is in check!", self, team, mv)
+                                }
+                            })
+                        }
+                    })
+                })
+            availMoves = inCheckMoves.filter((mv, idx, arr) => idx === arr.findIndex((oth) => (
+                oth[0][0] === mv[0][0] && oth[1][0] === mv [1][0]
+                )))
+                // if(inCheckMoves.length > 0) {console.log("moves I can make while the king is in check:", inCheckMoves)}
+            }
+        }
         if(typeToMove  === faChessPawn) {
             pawnMoves.forEach((mv) => {
                 attacking.push(mv)
@@ -642,6 +702,22 @@ export default function Piece (props) {
                 attacking.push(mv)
             })
             record(typeToMove , team, self, currentFile, currentRank, quickerMoved, attacking, availMoves, lookPast)
+        }
+        if(assassin) {
+            setAssassinAttempts(assassinAttempts.filter((atk, index, arr) =>
+            index === arr.findIndex((oth) => (
+            oth[2] === atk[2]
+            ))))
+        }
+        if(!assassin) {
+            if(assassinAttempts !== undefined) {
+                assassinAttempts.forEach((atmpt, idx, arr) => {
+                    if(atmpt[1] === self) {
+                        arr.splice(idx, 1)
+                        // console.log(self, "I'm not the assassin anymore!", assassinAttempts)
+                    }
+                })
+            }
         }
         updateAttacks();
         setMoves(availMoves)
@@ -695,24 +771,38 @@ export default function Piece (props) {
 
 
     const move = (newFile, newRank, newPosition) => {
-        setCurrentFile(newFile)
-        setCurrentRank(newRank)
-        setCurrentPosition(newPosition)
-        setGhosts([])
-        // setAssassinAttempts([])
-        if(!quickerMoved) {
-            setMoved(true)
-            quickerMoved = true;
-        }
-        setMoving(true)
-        setSelected(false)
+        // if(promoted) {
+        //     setTimeout(() => {
+        //         setCurrentFile(newFile)
+        //         setCurrentRank(newRank)
+        //         setCurrentPosition(newPosition)
+        //         setGhosts([])
+        //         if(!quickerMoved) {
+        //             setMoved(true)
+        //             quickerMoved = true;
+        //         }
+        //         setMoving(true)
+        //         setSelected(false)
+        //     }, 20)
+        // } else {
+            setCurrentFile(newFile)
+            setCurrentRank(newRank)
+            setCurrentPosition(newPosition)
+            setGhosts([])
+            if(!quickerMoved) {
+                setMoved(true)
+                quickerMoved = true;
+            }
+            setMoving(true)
+            setSelected(false)
+        // }
         setTimeout(() => {
             setSelection(false)
             setMoving(false)
             toggleActivePlayer()
-            determineMoves(quickType ? quickType : pieceType ? pieceType : type , newFile, newRank, locations)
+            determineMoves(promoted ? pieceType : quickType ? quickType : type , newFile, newRank, locations)
             updateAttacks();
-        }, 75)
+        }, 500)
     }
 
     const capturing = (newFile, newRank) => {
@@ -734,6 +824,7 @@ export default function Piece (props) {
 
     const promoting = (file, rank, position) => {
         setPieceType(faChessQueen)
+        setPromoted(true)
         quickType = faChessQueen
     }
 
@@ -815,21 +906,21 @@ export default function Piece (props) {
                 }
             })
             if(moves.length > 0) {
-                console.log("attacked king's moves:", moves)
+                // console.log("attacked king's moves:", moves)
             } else {
-                console.log("attacked king can't move!")
+                // console.log("attacked king can't move!")
             }
             if(assassins.length > 1) {
-                console.log("multiple check:", assassins)
+                // console.log("multiple check:", assassins)
                 if(moves.length < 1) {
-                    console.log("checkmate! Fuck!")
+                    // console.log("checkmate! Fuck!")
                 }
             } else {
-                console.log("assassin:", assassins)
+                // console.log("assassin:", assassins)
             }
         } else {
-            if(moves.length > 0) {
-            }
+            determineMoves(pieceType ? pieceType : type , currentFile, currentRank, locations)
+
         }
     }
 
@@ -854,6 +945,14 @@ export default function Piece (props) {
         inCheckRules()
         setChecked(false)
     },[moving])
+
+    useEffect(() => {
+        if(promoted && pieceType !== type) {
+            quickType = false
+        }
+    },[promoted])
+
+
 
     return (
         <div className={ activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>

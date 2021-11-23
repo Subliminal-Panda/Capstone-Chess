@@ -9,6 +9,7 @@ export default function CapturedZone(props) {
     const { locations, setLocations } = useContext(CurrentGameContext)
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { inCheck, setInCheck } = useContext(CurrentGameContext)
+    const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
 
     const [ captures, setCaptures ] = useState([])
     const [ checks, setChecks ] = useState([])
@@ -52,7 +53,8 @@ export default function CapturedZone(props) {
                 rendering = chk
             } else if(props.player === "Player Two" && chk === "black") {
                 rendering = chk
-            }
+            } else if(chk === "checkmate")
+                rendering = chk
             })
         setChecks(rendering)
     }
@@ -60,7 +62,8 @@ export default function CapturedZone(props) {
     return (
         <div className={ props.player === "Player One" ? "player-one-captured captured-zone" : "player-two-captured captured-zone" }>
             <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>{props.player}</h1>
-            { checks[0] !== undefined ? <h1 className="in-check">IN CHECK!</h1> : null }
+            { gameEnd ? <h1 className="in-check">{String(gameEnd).toUpperCase()}</h1> : inCheck[0] === "white" || inCheck[1] === "black" ? <h1 className="in-check"><div>{String(inCheck[0]).toUpperCase()}{String(inCheck[1]).toUpperCase()}</div><div>IS IN CHECK!</div></h1> : null }
+
             <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>Captured Pieces:</h1>
             <div>
             {captures}

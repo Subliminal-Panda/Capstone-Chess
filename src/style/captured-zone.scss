@@ -18,8 +18,14 @@
         font-size: 5.25rem;
     }
     .in-check {
-        font-size: 11rem;
+        font-size: 8rem;
         color: $warning;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-justify: center;
+        text-align: center;
     }
 }
 
