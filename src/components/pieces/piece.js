@@ -58,7 +58,7 @@ export default function Piece (props) {
 
     const handleHover = () => {
         setChecked(false)
-        if(!selection && !choosingPromotion) {
+        if(!selection) {
             determineMoves(pieceType ? pieceType : type , currentFile, currentRank, locations);
             if(availMoves[0] !== undefined) {
                 setHover(true)
@@ -915,16 +915,34 @@ export default function Piece (props) {
     }
 
     const promoting = (file, rank, position) => {
-        setGhosts([])
-        setChoosingPromotion(true)
-        setCurrentFile(file);
-        setCurrentRank(rank);
-        setCurrentPosition(position);
-        if(!quickerMoved) {
-            setMoved(true)
-            quickerMoved = true;
-        }
+        setTimeout(() => {
+            setChoosingPromotion(true)
+            setCurrentFile(file);
+            setCurrentRank(rank);
+            setCurrentPosition(position);
+            if(!quickerMoved) {
+                setMoved(true)
+                quickerMoved = true;
+            }
         handleUnhover();
+        ghosts.push([<Ghost
+            key={`${self}${currentPosition}`}
+            capturing={capturing}
+            capture={false}
+            castling={castling}
+            castle={false}
+            promoting={promoting}
+            promote={false}
+            placeholder={true}
+            team={team}
+            initposition={position}
+            move={move}
+            file={file}
+            rank={rank}
+            position={currentPosition}
+            type={pieceType}
+        />])
+        }, 50)
 
     }
     const handlePromote = (icon) => {
@@ -938,7 +956,7 @@ export default function Piece (props) {
             setSelection(false)
             setMoving(false)
             toggleActivePlayer()
-            determineMoves(promoted ? pieceType : type , currentFile, currentRank, locations)
+            determineMoves(pieceType , currentFile, currentRank, locations)
             updateAttacks();
         }, 200)
     }
@@ -1058,7 +1076,7 @@ export default function Piece (props) {
 
     useEffect(() => {
         setChecked(false)
-    },[inCheck, taken])
+    },[inCheck, taken, promoted])
 
     useEffect(() => {
     },[promoted])
@@ -1066,7 +1084,7 @@ export default function Piece (props) {
 
 
     return (
-        <div className={ choosingPromotion ? activePlayer === "white" ? "normal-game-board game-board promotion-wrap" : "reversed-game-board game-board promotion-wrap" : activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
+        <div className={activePlayer === "white" ? "normal-game-board game-board" : "reversed-game-board game-board"} style={{ gridColumn: "1 / span8", gridRow: "1 / span8"}}>
             {ghosts}
             <div
             onClick={ activePlayer === team ? () => toggleSelected() : null }

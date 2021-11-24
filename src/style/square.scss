@@ -80,6 +80,10 @@
     color: $warning;
     z-index: 2;
     opacity: .75;
+
+    &:hover {
+        //make it cover the other piece if they're the same.
+    }
 }
 
 .castle {
