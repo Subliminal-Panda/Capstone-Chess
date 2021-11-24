@@ -85,17 +85,7 @@ export default function Board (props) {
 
     const findCheck = () => {
         let checks = [[],[]]
-        setAssassinAttempts(assassinAttempts.filter((atk, index, arr) =>
-        index === arr.findIndex((oth) => (
-        oth[2] !== atk[2]
-        ))))
-        assassinAttempts.forEach((atk, idx) => {
-            taken.forEach((pc) => {
-                if(pc[1] === atk[1]) {
-                    setAssassinAttempts(assassinAttempts.splice(idx, 1))
-                }
-            })
-        })
+
         const checkSafety = (file, rank, team) => {
             const status = []
             if(underAttack[0] !== undefined) {
@@ -110,7 +100,6 @@ export default function Board (props) {
             } else {
                 status.push(file, rank, "safe", [])
             }
-            // console.log("status of safety:", status)
             return(status)
         }
         const whiteK = locations.filter(item => item[2] === "e1");
@@ -128,10 +117,12 @@ export default function Board (props) {
             const wkr = whiteKing[0][4]
             const wkstatus = checkSafety(wkf, wkr, "white")
             if(wkstatus[2] === "unsafe") {
-                checks[0] = "white"
+                if(activePlayer === "white") {
+                    checks[1] = []
+                    checks[0] = "white"
+                }
             } else {
                 checks[0] = []
-                // console.log("incheck removed:", whiteKing)
             }
         }
         if(blackKing[0] !== undefined) {
@@ -139,56 +130,42 @@ export default function Board (props) {
             const bkr = blackKing[0][4]
             const bkstatus = checkSafety(bkf, bkr, "black")
             if(bkstatus[2] === "unsafe") {
+                if(activePlayer === "black")
+                checks[0] = []
                 checks[1] = "black"
             } else {
                 checks[1] = []
-                // console.log("incheck removed:", blackKing)
             }
         }
         setInCheck(checks)
-        // console.log("assassin attempts from board:", assassinAttempts)
+        console.log("checks:", checks)
+        console.log("incheck:", inCheck)
     }
 
     const findCheckMate = () => {
         const movablePieces = []
         locations.forEach((loc, idx, arr) => {
-            // console.log("location:", loc)
-            if(loc[7][0] !== undefined) {
+            if(loc[7][0] !== undefined || loc[6][0] !== undefined) {
                 if(loc[1] === inCheck[0] || loc[1] === inCheck[1])
                 movablePieces.push(loc)
             }
         })
         if(movablePieces[0] === undefined) {
-                console.log("active player:", activePlayer, inCheck)
-                if(activePlayer === "white" && inCheck[1] === "black") {
-                    console.log("white wins!!")
-                    setGameEnd(`Checkmate. ${activePlayer} wins.`)
+                if(activePlayer === "black" && inCheck[1] === "black") {
+                    setGameEnd(`Checkmate. White wins.`)
                 }
-                if(activePlayer === "black" && inCheck[0] === "white") {
-                    console.log("black wins!!")
-                    setGameEnd(`Checkmate. ${activePlayer} wins.`)
+                if(activePlayer === "white" && inCheck[0] === "white") {
+                    setGameEnd(`Checkmate. Black wins.`)
                 }
-                console.log("in check:", inCheck)
-            // setTimeout(() => {
-            //     if(movablePieces[0] === undefined) {
-            //         if(activePlayer === inCheck[0] || activePlayer === inCheck[1]) {
-            //             console.log("We definitely found checkmate!")
-            //         }
-            //     }
-            // }, 500)
         } else {
-            console.log("pieces that can move:", movablePieces)
         }
     }
 
     useEffect(() => {
-        // if(checked === false) {
-        //     setChecked(true)
-        // }
         if(locations.length + taken.length > 31 && checked === false) {
             if(!moving) {
-                findCheckMate();
                 findCheck();
+                findCheckMate();
                 setChecked(true);
             }
         }
@@ -196,7 +173,7 @@ export default function Board (props) {
 
     useEffect(() => {
         setChecked(false)
-    },[moving])
+    },[moving, taken, locations])
 
     useEffect(() => {
         setActivePlayer("white")

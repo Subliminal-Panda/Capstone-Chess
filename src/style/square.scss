@@ -94,3 +94,58 @@ text {
     -ms-user-select: none;
     user-select: none;
 }
+
+.promotion-selection {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    width: 22vw;
+    height: 22vh;
+    background-color: rgb(127, 127, 127);
+    border: .3rem solid black;
+    border-radius: 1rem;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-justify: center;
+    z-index: 6;
+    position: fixed;
+    top: calc(50vh - 8vmin);
+    left: (50vw - 11vw);
+
+    &:hover {
+        font-size: 7vmin;
+    }
+
+    p {
+        grid-row: 1;
+        grid-column: 1 / span 4;
+        font-size: 3.5rem;
+
+        &:hover {
+            font-size: 3.5rem;
+        }
+    }
+
+    .promotion-piece {
+        grid-row: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1.5rem;
+
+        .choice {
+            &:hover {
+                font-size: 8vmin;
+                color: $teal;
+            }
+
+        }
+
+    }
+}
+
+.placeholder {
+    color: black;
+    z-index: 100;
+}

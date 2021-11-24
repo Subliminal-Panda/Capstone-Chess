@@ -23,6 +23,8 @@ const CurrentGameContext = createContext({
     setMoving: () => {},
     gameEnd: "",
     setGameEnd: () => {},
+    pinned: [],
+    setPinned: () => {},
 })
 
 export default CurrentGameContext
