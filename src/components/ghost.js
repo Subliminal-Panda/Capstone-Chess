@@ -27,9 +27,9 @@ export default function Ghost(props) {
         const first = capture ? "capture" : null;
         const second = castle ? "castle" : null;
         const third = promote ? "promote" : null;
-        const fourth = placeholder ? "placeholder" : null;
+        // const fourth = placeholder ? "placeholder" : null;
         const fifth = "ghost";
-        const allClasses = `${first} ${second} ${third} ${fourth} ${fifth}`
+        const allClasses = `${first} ${second} ${third} ${fifth}`
         return(allClasses)
     }
 

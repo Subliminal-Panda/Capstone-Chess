@@ -1,6 +1,8 @@
 ﻿import React, { createContext } from 'react';
 
 const CurrentGameContext = createContext({
+    newGame: '',
+    setNewGame: () => {},
     activePlayer: "",
     setActivePlayer: () => {},
     selection: "",
@@ -21,7 +23,7 @@ const CurrentGameContext = createContext({
     setAssassinAttempts: () => {},
     moving: "",
     setMoving: () => {},
-    gameEnd: "",
+    gameEnd: '',
     setGameEnd: () => {},
     pinned: [],
     setPinned: () => {},

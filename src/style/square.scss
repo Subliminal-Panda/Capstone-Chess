@@ -32,15 +32,16 @@
     * {
         color: $teal;
         font-size: 7.75vmin;
+        filter: drop-shadow( .35rem .35rem .25rem rgba(50, 50, 50, 1));
     }
 }
 
 .selected-piece {
     * {
         color: $dark-teal;
-
+        // filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
         &:hover {
-            font-size: 7.75vmin
+            font-size: 7.75vmin;
         }
     }
 
@@ -63,6 +64,7 @@
     &:hover {
         font-size: 7vmin;
         opacity: 1;
+        filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
     }
 }
 
@@ -73,6 +75,7 @@
 
     &:hover {
         font-size: 9vmin;
+        filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
     }
 }
 
@@ -80,15 +83,13 @@
     color: $warning;
     z-index: 2;
     opacity: .75;
-
-    &:hover {
-        //make it cover the other piece if they're the same.
-    }
+    filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
 }
 
 .castle {
     color: rgb(255, 253, 128);
     z-index: 2;
+    filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
 }
 
 
@@ -107,7 +108,7 @@ text {
     height: 22vh;
     background-color: rgb(127, 127, 127);
     border: .3rem solid black;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -116,6 +117,11 @@ text {
     position: fixed;
     top: calc(50vh - 8vmin);
     left: (50vw - 11vw);
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 
     &:hover {
         font-size: 7vmin;
@@ -142,6 +148,8 @@ text {
             &:hover {
                 font-size: 8vmin;
                 color: $teal;
+                cursor: pointer;
+                filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
             }
 
         }

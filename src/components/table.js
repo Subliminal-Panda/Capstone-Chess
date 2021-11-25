@@ -1,26 +1,50 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useState, useContext } from 'react';
+
 import CapturedZone from './capturedZone';
 import Board from './board';
+import CurrentGameContext from './currentGame';
 
-export default class Table extends Component {
+export default function Table (props) {
 
-    constructor(props) {
-        super(props);
-        this.state = {
+    const [ white, setWhite ] = useState("Player One")
+    const [ black, setBlack ] = useState("Player Two")
 
-            players: {
-                white: "Player One",
-                black: "Player Two"
-            }
-        }
+    const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
+    const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
+    const { selection, setSelection } = useContext(CurrentGameContext)
+    const { pieces, setPieces } = useContext(CurrentGameContext)
+    const { locations, setLocations } = useContext(CurrentGameContext)
+    const { taken, setTaken } = useContext(CurrentGameContext)
+    const { underAttack, setUnderAttack } = useContext(CurrentGameContext)
+    const { castled, setCastled } = useContext(CurrentGameContext)
+    const { inCheck, setInCheck } = useContext(CurrentGameContext)
+    const { assassinAttempts, setAssassinAttempts } = useContext(CurrentGameContext)
+    const { moving, setMoving } = useContext(CurrentGameContext)
+    const { pinned, setPinned } = useContext(CurrentGameContext)
+    const { newGame, setNewGame } = useContext(CurrentGameContext)
+
+    const resetGame = () => {
+        setGameEnd(false)
+        setPieces([])
+        setActivePlayer("white")
+        setSelection(false)
+        setLocations([])
+        setTaken([])
+        setUnderAttack([])
+        setCastled([])
+        setAssassinAttempts([])
+        setMoving(false)
+        setPinned([])
+        setNewGame(true)
+        setInCheck([])
     }
-    render() {
-        return (
-            <div className="table-wrap">
-                <CapturedZone player={this.state.players.white} />
-                <Board />
-                <CapturedZone player={this.state.players.black}/>
-            </div>
-        )
-    }
+
+    return (
+        <div className="table-wrap">
+            <CapturedZone player={white} />
+            <Board />
+            { gameEnd ? <div onClick={() => resetGame()} className="new-game">new game?</div> : null }
+            <CapturedZone player={black}/>
+        </div>
+    )
 }

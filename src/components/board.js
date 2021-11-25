@@ -23,6 +23,7 @@ export default function Board (props) {
     const { taken, setTaken } = useContext(CurrentGameContext)
     const { moving, setMoving } = useContext(CurrentGameContext)
     const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
+    const { newGame, setNewGame } = useContext(CurrentGameContext)
 
     const makeSquares = () => {
         let squareSet = []
@@ -140,25 +141,50 @@ export default function Board (props) {
         setInCheck(checks)
         console.log("checks:", checks)
         console.log("incheck:", inCheck)
+        // findCheckMate();
     }
 
     const findCheckMate = () => {
         const movablePieces = []
-        locations.forEach((loc, idx, arr) => {
-            if(loc[7][0] !== undefined || loc[6][0] !== undefined) {
-                if(loc[1] === inCheck[0] || loc[1] === inCheck[1])
-                movablePieces.push(loc)
-            }
-        })
-        if(movablePieces[0] === undefined) {
+        // let whiteKing = ''
+        // let blackKing = ''
+            locations.forEach((loc) => {
+                if(loc[7][0] !== undefined) {
+                    if(loc[1] === inCheck[0] || loc[1] === inCheck[1])
+                    movablePieces.push(loc)
+                }
+                // if(loc[2] === "e1") {whiteKing = loc}
+                // if(loc[2] === "e8") {blackKing = loc}
+            })
+            if(movablePieces[0] === undefined) {
                 if(activePlayer === "black" && inCheck[1] === "black") {
                     setGameEnd(`Checkmate. White wins.`)
                 }
                 if(activePlayer === "white" && inCheck[0] === "white") {
                     setGameEnd(`Checkmate. Black wins.`)
                 }
-        } else {
-        }
+            } else {
+                // const filteredAttempts = assassinAttempts.filter((atk, index, arr) =>
+                // index === arr.findIndex((oth) => (
+                //     oth[2] === atk[2]
+                //     )))
+                //     filteredAttempts.filter((atk, idx, arr) => {
+                //         atk[4] !== activePlayer
+                //     })
+                // if(filteredAttempts.length > 1) {
+                //     if(activePlayer === "white") {
+                //         if(whiteKing[7].length < 1) {
+                //             setGameEnd(`Checkmate. Black wins.`)
+                //         }
+                //     }
+                //     if(activePlayer === "black") {
+                //         if(blackKing[7].length < 1) {
+                //             setGameEnd(`Checkmate. White wins.`)
+                //         }
+                //     }
+                // }
+                console.log("movable pieces while in check:", movablePieces, inCheck)
+            }
     }
 
     useEffect(() => {
@@ -173,13 +199,22 @@ export default function Board (props) {
 
     useEffect(() => {
         setChecked(false)
-    },[moving, taken, locations])
+    },[activePlayer, locations])
+
+    // useEffect(() => {
+    //     setActivePlayer("white")
+    //     makeSquares();
+    //     setBoard();
+    // }, [])
 
     useEffect(() => {
-        setActivePlayer("white")
-        makeSquares();
-        setBoard();
-    }, [])
+        if(newGame === true) {
+            setActivePlayer("white");
+            makeSquares();
+            setBoard();
+            setNewGame(false);
+        }
+    }, [newGame])
 
     return (
         <div className="game-board-wrap">

@@ -4,3 +4,23 @@
     justify-content: center;
     gap: 3rem;
 }
+
+.new-game {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, 8%);
+    padding: 1rem;
+    font-size: 5vmin;
+    text-justify: center;
+    background-color: grey;
+    border: .3rem solid black;
+    border-radius: 1.5rem;
+    z-index: 100;
+    opacity: .75;
+
+    &:hover {
+        cursor: pointer;
+        opacity: 1;
+    }
+}
