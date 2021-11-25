@@ -58,7 +58,7 @@ export default function Piece (props) {
     }
 
     const handleHover = () => {
-        if(!gameEnd && !hover) {
+        if(!gameEnd && !hover && !moving) {
             if(!selection && !choosingPromotion) {
                 // if(movesSearched < 1) {
                 //     console.log("moves searched?", movesSearched)
@@ -81,10 +81,10 @@ export default function Piece (props) {
 
     const toggleSelected = () => {
         console.log("ME:", pieceType , team, self, currentFile, currentRank, quickerMoved, moves)
-        if(!selection && !gameEnd) {
+        if(!selection && !gameEnd && !moving) {
             if(!selected && hover) {
                 setSelected(true)
-                setSelection(true)
+                setSelection(self)
             }
         }
         if(selected) {
@@ -931,7 +931,7 @@ export default function Piece (props) {
     }
 
     const promoting = (file, rank, position) => {
-        setSelection(true);
+        setSelection(self);
         setChoosingPromotion(true);
         setCurrentFile(file);
         setCurrentRank(rank);
@@ -941,23 +941,26 @@ export default function Piece (props) {
             quickerMoved = true;
         }
         handleUnhover();
-        setSelection(true);
+        setSelection(self);
+        setMoving(true)
     }
     const handlePromote = (icon) => {
-        setSelection(true)
+        setSelection(self)
         setHover(false)
         setSelected(false)
         setGhosts([])
-        setMoving(true)
+        // setMoving(true)
         setPieceType(icon)
         setPromoted(true);
-        setHover(false)
-        setSelected(false)
-        setGhosts([])
-        setChoosingPromotion(false)
-        setMoving(false)
-        setSelection(false)
-        toggleActivePlayer()
+        // if( pieceType !== type ) {
+            setHover(false)
+            setSelected(false)
+            setGhosts([])
+            setChoosingPromotion(false)
+            setMoving(false)
+            setSelection(false)
+            toggleActivePlayer()
+        // }
     }
 
 
@@ -1053,15 +1056,24 @@ export default function Piece (props) {
             {ghosts}
             <div
             onClick={ activePlayer === team ? () => toggleSelected() : null }
-            onMouseOver={ activePlayer === team ? () => handleHover() : null }
+            onMouseOver={ !selection ? activePlayer === team ? () => handleHover() : null : null }
             onMouseOut={ activePlayer === team ? () => handleUnhover() : null }
-            className={ choosingPromotion ? "choice chess-piece" : hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
+            className={ choosingPromotion ? "getting-promoted chess-piece" : hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
             style={{
                 gridArea: currentPosition,
                 color: team,
                 }}>
-                { choosingPromotion ?
-                <div className="promotion-selection">
+                <FontAwesomeIcon
+                icon={ pieceType ? pieceType : type }
+                />
+            </div>
+            { choosingPromotion ?
+                <div className="promotion-selection"
+                    style={{
+                        color: `${team}`,
+                        border: `.3rem solid ${team}`,
+
+                    }}>
                     <p>Select your piece:</p>
                     <div className="promotion-piece">
                         <FontAwesomeIcon onClick={() => handlePromote(faChessQueen)} className="choice" icon={ faChessQueen }/>
@@ -1075,11 +1087,7 @@ export default function Piece (props) {
                     <div className="promotion-piece">
                         <FontAwesomeIcon onClick={() => handlePromote(faChessKnight)} className="choice" icon={ faChessKnight }/>
                     </div>
-                </div> :
-                <FontAwesomeIcon
-                icon={ pieceType ? pieceType : type }
-                />}
-            </div>
+                </div> : null }
         </div>
     )
 }

@@ -1,5 +1,5 @@
 ﻿.captured-zone {
-    width: calc((95vw - (100vmin - 100px)) / 2);
+    width: 40vw;
     height: calc(95vh - 150px);
 
     border-radius: 3rem;
@@ -39,8 +39,15 @@
 }
 
 .taken {
-    font-size: 5vmax;
-    margin: 1vmax;
+    font-size: 8.5vmin;
+    margin: 2vmin;
+}
+.captures {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: 1fr 1fr;
+    justify-content: center;
+    align-items: center;
 }
 
 .player-one {

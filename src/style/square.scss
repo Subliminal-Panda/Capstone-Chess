@@ -39,7 +39,7 @@
 .selected-piece {
     * {
         color: $dark-teal;
-        // filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
+        filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
         &:hover {
             font-size: 7.75vmin;
         }
@@ -122,6 +122,8 @@ text {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    font-size: 7vmin;
+    font-weight: 900;
 
     &:hover {
         font-size: 7vmin;
@@ -154,6 +156,14 @@ text {
 
         }
 
+    }
+}
+
+.getting-promoted {
+    * {
+        color: rgb(255, 240, 154);
+        font-size: 8vmin;
+        filter: drop-shadow( .25rem .25rem .25rem rgba(50, 50, 50, 1));
     }
 }
 

@@ -1,6 +1,6 @@
 ﻿.game-board {
-    width: calc(95vmin - 150px);
-    height: calc(95vmin - 150px);
+    width: 75vmin;
+    height: 75vmin;
     // border: .3rem solid black;
     // gap: .2rem;
     display: grid;
@@ -37,8 +37,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: calc(98vmin - 140px);
-    height: calc(98vmin - 140px);
+    min-width: 78vmin;
+    min-height: 78vmin;
     border-radius: 1.5rem;
 }
 

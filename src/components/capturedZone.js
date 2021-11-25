@@ -65,7 +65,7 @@ export default function CapturedZone(props) {
             { gameEnd ? <h1 className="in-check">{String(gameEnd).toUpperCase()}</h1> : inCheck[0] === "white" || inCheck[1] === "black" ? <h1 className="in-check"><div>{String(inCheck[0]).toUpperCase()}{String(inCheck[1]).toUpperCase()}</div><div>IS IN CHECK!</div></h1> : null }
 
             <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>Captured Pieces:</h1>
-            <div>
+            <div className="captures">
             {captures}
             </div>
         </div>
