@@ -1,8 +1,6 @@
 ﻿.game-board {
-    width: 75vmin;
-    height: 75vmin;
-    // border: .3rem solid black;
-    // gap: .2rem;
+    min-width: 93vmin;
+    min-height: 93vmin;
     display: grid;
     justify-content: center;
     align-items: center;
@@ -17,9 +15,9 @@
         "a3 b3 c3 d3 e3 f3 g3 h3"
         "a2 b2 c2 d2 e2 f2 g2 h2"
         "a1 b1 c1 d1 e1 f1 g1 h1";
-    }
+}
 
-    .reversed-game-board {
+.reversed-game-board {
     grid-template-areas:
     "h1 g1 f1 e1 d1 c1 b1 a1"
     "h2 g2 f2 e2 d2 c2 b2 a2"
@@ -32,14 +30,18 @@
 }
 
 .game-board-wrap {
-    border: .5rem solid black;
+    border: .75vmin solid black;
+    background-color: rgb(61, 61, 61);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 78vmin;
-    min-height: 78vmin;
+    max-width: 96vmin;
+    max-height: 96vmin;
+    min-width: 96vmin;
+    min-height: 96vmin;
     border-radius: 1.5rem;
+    margin: 1.25vmin;
 }
 
 button {

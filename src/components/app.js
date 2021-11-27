@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Table from "./table";
 import CurrentGameContext from './currentGame';
 
 export default function App () {
   const [ newGame, setNewGame ] = useState(true)
+  const [ playerOne, setPlayerOne ] = useState("Snake Everything")
+  const [ playerTwo, setPlayerTwo ] = useState("Big Muffin")
   const [ activePlayer, setActivePlayer ] = useState("black")
   const [ selection, setSelection ] = useState(false)
   const [ pieces, setPieces ] = useState([])
@@ -19,8 +21,8 @@ export default function App () {
 
   return (
     <div className='app'>
-      <CurrentGameContext.Provider value={{ newGame, setNewGame, activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck, assassinAttempts, setAssassinAttempts, moving, setMoving, pinned, setPinned, gameEnd, setGameEnd }}>
-        <h1 className={ activePlayer === "white" ? "player-one main-heading" : "player-two main-heading" }>{activePlayer === "white" ? "PLAYER ONE" : "PLAYER TWO"}'S TURN</h1>
+      <CurrentGameContext.Provider value={{ newGame, setNewGame, playerOne, setPlayerOne, playerTwo, setPlayerTwo, activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck, assassinAttempts, setAssassinAttempts, moving, setMoving, pinned, setPinned, gameEnd, setGameEnd }}>
+        {/* <h1 className={ activePlayer === "white" ? "player-one main-heading" : "player-two main-heading" }>{activePlayer === "white" ? `${playerOne}`.toUpperCase() : activePlayer === "black" ? `${playerTwo}`.toUpperCase() : null }'S TURN</h1> */}
         <Table />
       </CurrentGameContext.Provider>
     </div>

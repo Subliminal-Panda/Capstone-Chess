@@ -3,6 +3,10 @@
 const CurrentGameContext = createContext({
     newGame: '',
     setNewGame: () => {},
+    playerOne: "",
+    setPlayerOne: () => {},
+    playerTwo: "",
+    setPlayerTwo: () => {},
     activePlayer: "",
     setActivePlayer: () => {},
     selection: "",

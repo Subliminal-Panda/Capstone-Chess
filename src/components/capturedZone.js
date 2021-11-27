@@ -2,6 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import CurrentGameContext from './currentGame';
+import { faTruckMoving } from '@fortawesome/free-solid-svg-icons';
 
 export default function CapturedZone(props) {
 
@@ -10,63 +11,89 @@ export default function CapturedZone(props) {
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { inCheck, setInCheck } = useContext(CurrentGameContext)
     const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
+    const { playerOne, setPlayerOne } = useContext(CurrentGameContext)
+    const { playerTwo, setPlayerTwo } = useContext(CurrentGameContext)
+    const { moving, setMoving } = useContext(CurrentGameContext)
 
-    const [ captures, setCaptures ] = useState([])
-    const [ checks, setChecks ] = useState([])
-    let rendering = []
+    const [ capturesOne, setCapturesOne ] = useState([])
+    const [ capturesTwo, setCapturesTwo ] = useState([])
+
+    const [ active, setActive ] = useState(playerOne)
+    const [ inactive, setInactive ] = useState(playerTwo)
 
     useEffect(() => {
         renderTaken();
-        renderCheck();
-    },[activePlayer, locations, inCheck])
+        findInactive();
+    },[activePlayer, moving])
+
+
+
+    const findInactive = () => {
+        if(activePlayer === "white") {
+            setActive(playerOne)
+            setInactive(playerTwo)
+        } else if(activePlayer === "black") {
+            setActive(playerTwo)
+            setInactive(playerOne)
+        }
+    }
 
 
 
     const renderTaken = () => {
-        const rendered = []
+        const renderedOne = []
+        const renderedTwo = []
         const playerTaken = taken.filter((pc, index, arr) =>
             index === arr.findIndex((oth) => (
             oth[2] === pc[2]
             )
         ))
         playerTaken.forEach((pc) => {
-            if(props.player === "Player One") {
-                if(pc[1] === "black") {
-                    rendered.push(
-                        <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
-                    )
-                }
-            } else if (props.player === "Player Two") {
-                if(pc[1] === "white") {
-                    rendered.push(
-                        <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
-                    )
-                }
+            if(pc[1] === "black") {
+                renderedOne.push(
+                    <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
+                )
+            } else if(pc[1] === "white") {
+                renderedTwo.push(
+                    <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
+                )
             }
         })
-        setCaptures(rendered)
-    }
-
-    const renderCheck = () => {
-        inCheck.forEach((chk) => {
-            if(props.player === "Player One" && chk === "white") {
-                rendering = chk
-            } else if(props.player === "Player Two" && chk === "black") {
-                rendering = chk
-            } else if(chk === "checkmate")
-                rendering = chk
-            })
-        setChecks(rendering)
+        setCapturesOne(renderedOne)
+        setCapturesTwo(renderedTwo)
     }
 
     return (
-        <div className={ props.player === "Player One" ? "player-one-captured captured-zone" : "player-two-captured captured-zone" }>
-            <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>{props.player}</h1>
-            { gameEnd ? <h1 className="in-check">{String(gameEnd).toUpperCase()}</h1> : inCheck[0] === "white" || inCheck[1] === "black" ? <h1 className="in-check"><div>{String(inCheck[0]).toUpperCase()}{String(inCheck[1]).toUpperCase()}</div><div>IS IN CHECK!</div></h1> : null }
+        <div className={ active === playerTwo ? "player-two-captured captured-zone" : "player-one-captured captured-zone" }>
 
-            <h1 className={ props.player === "Player One" ? "player-one" : "player-two" }>Captured Pieces:</h1>
-            <div className="captures">
-            {captures}
+            <div className={ active === playerOne ? "player-one one-active active-details details" : active === playerTwo ? "player-two two-active active-details details" : null }>
+
+                <div className="on-turn" >On turn:</div>
+
+                <div className="nameplate">{active}</div>
+
+                { gameEnd ? <div className="game-end">{`${gameEnd}`.toUpperCase()}</div> : inCheck[0] === "white" || inCheck[1] === "black" ? <div className="in-check">CHECK!</div> : <div className="in-check"></div> }
+
+                <div className="captures">
+
+                    <h1 className={ active === playerOne ? "player-one captured" : active === playerTwo ? "player-two captured" : null }>Captured:</h1>
+
+                    {capturesOne}
+
+                </div>
+            </div>
+
+            <div className={ inactive === playerOne ? "player-one inactive-details details" : inactive === playerTwo ? "player-two inactive-details details" : null }>
+
+                <div className="nameplate">{inactive}</div>
+
+                <div className="captures">
+
+                    <h1 className={ inactive === playerOne ? "player-one captured" : inactive === playerTwo ? "player-two captured" : null }>Captured:</h1>
+
+                    {capturesTwo}
+
+                </div>
             </div>
         </div>
     )

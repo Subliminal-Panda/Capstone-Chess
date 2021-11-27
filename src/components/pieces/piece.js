@@ -8,8 +8,6 @@ export default function Piece (props) {
 
     //add en passant rules
 
-    // fix the "while selecting promotion" bug and z-index problem
-
     //I think that should do it!!
 
     const { initRank, initFile, team, type } = props;
@@ -58,24 +56,16 @@ export default function Piece (props) {
     }
 
     const handleHover = () => {
-        if(!gameEnd && !hover && !moving) {
-            if(!selection && !choosingPromotion) {
-                // if(movesSearched < 1) {
-                //     console.log("moves searched?", movesSearched)
-                //     setMovesSearched(movesSearched + 1)
-                //     determineMoves(pieceType ? pieceType : type , currentFile, currentRank, locations);
-                // }
-                if(moves.length > 0) {
-                    setHover(true)
-                    makeGhosts(moves, pieceType ? pieceType : type , [initFile, initRank], team, locations)
-                }
+        if(!gameEnd && !hover && !moving && !selection && !choosingPromotion) {
+            if(moves.length > 0) {
+                setHover(true)
+                makeGhosts(moves, pieceType ? pieceType : type , [initFile, initRank], team)
             }
         }
     }
 
     const handleUnhover = () => {
         setHover(false)
-        // setMovesSearched(0)
         { !selected ? setGhosts([]) : null };
     }
 
@@ -292,7 +282,6 @@ export default function Piece (props) {
                             }
                         }
                         if(capture && pawn && horizontal === currentFile) {
-                            //pawn moving straight up
                             break
                         } else if(capture && !king) {
                             if(pawn){
@@ -366,7 +355,6 @@ export default function Piece (props) {
                     pieceArray.forEach((rec) => {
                         let otherPieceFile = rec[3]
                         let otherPieceRank = rec[4]
-                        let otherPieceColor = rec[1]
                         if(horizontal == otherPieceFile && vertical == otherPieceRank) {
                             occupied = true;
                         };
@@ -849,7 +837,7 @@ export default function Piece (props) {
         return(availMoves)
     }
 
-    const makeGhosts = (availMoves = [], pieceType, initposition, team, locations) => {
+    const makeGhosts = (availMoves = [], pieceType, initposition, team) => {
         const newGhosts = []
         availMoves.forEach((loc) => {
                 let capture = false
@@ -948,11 +936,12 @@ export default function Piece (props) {
         setSelection(self)
         setHover(false)
         setSelected(false)
+        checked = false;
         setGhosts([])
-        // setMoving(true)
+        setMoving(true)
         setPieceType(icon)
         setPromoted(true);
-        // if( pieceType !== type ) {
+        setTimeout(() => {
             setHover(false)
             setSelected(false)
             setGhosts([])
@@ -960,7 +949,7 @@ export default function Piece (props) {
             setMoving(false)
             setSelection(false)
             toggleActivePlayer()
-        // }
+        }, 250)
     }
 
 

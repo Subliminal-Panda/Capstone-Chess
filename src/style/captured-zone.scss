@@ -1,32 +1,45 @@
 ﻿.captured-zone {
-    width: 40vw;
-    height: calc(95vh - 150px);
+    width: 100%;
+    min-height: 96vmin;
+    max-height: 96vmin;
 
-    border-radius: 3rem;
-    margin: 1rem;
+    border-radius: 1.5rem;
+    margin: 1.25vmin 0 1.25vmin 1.25vmin;
 
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
 
-    h1 {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        font-size: 5.25rem;
+    h2 {
+        font-size: 3rem;
     }
-    .in-check {
-        font-size: 7rem;
-        color: $warning;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-justify: center;
-        text-align: center;
-    }
+}
+.in-check {
+    font-weight: 900;
+    font-size: 6.5rem;
+    line-height: 8rem;
+    height: 8rem;
+    color: $warning;
+    // display: flex;
+    // flex-direction: column;
+    // align-items: center;
+    // justify-content: center;
+    // text-justify: center;
+    // text-align: center;
+}
+.game-end {
+    font-weight: 900;
+    font-size: 4rem;
+    line-height: 8rem;
+    height: 8rem;
+    color: $warning;
+    // display: flex;
+    // flex-direction: column;
+    // align-items: center;
+    // justify-content: center;
+    // text-justify: center;
+    // text-align: center;
 }
 
 .player-one-captured {
@@ -39,22 +52,76 @@
 }
 
 .taken {
-    font-size: 8.5vmin;
-    margin: 2vmin;
+    min-width: 5rem;
+    min-height: 5rem;
+    padding: .5rem;
+    // display: flex;
+    // font-size: 5.5rem;
+    // justify-content: center;
+    // align-items: center;
 }
 .captures {
+    width: 48rem;
+    height: 16rem;
+    justify-self: flex-end;
     display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 6rem 6rem 6rem 6rem 6rem 6rem 6rem 6rem;
+    grid-template-rows: 4rem 6rem 6rem;
+    grid-auto-flow: row;
     justify-content: center;
     align-items: center;
 }
 
+.details {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-size: 3.6rem;
+    font-weight: 900;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.active-details {
+    height: 65vh;
+}
+.inactive-details {
+    height: 35vh;
+}
+
+.on-turn {
+    font-size: 4.5rem;
+}
+
 .player-one {
     color: white;
-    font-weight: 900;
 }
 .player-two {
     color: black;
-    font-weight: 900;
+}
+
+.one-active {
+    margin: 0;
+    width: calc(100vw - 105vmin);
+    color: white;
+    border-bottom: .5rem solid white;
+}
+
+.two-active {
+    margin: 0;
+    width: calc(100vw - 105vmin);
+    color: black;
+    border-bottom: .5rem solid black;
+}
+
+.captured {
+    text-align: center;
+    line-height: 4rem;
+    grid-row: 1;
+    grid-column: 1 / span 8;
+    font-size: 3.5rem;
+    height: 4rem;
 }

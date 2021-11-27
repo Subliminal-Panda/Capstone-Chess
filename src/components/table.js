@@ -6,9 +6,8 @@ import CurrentGameContext from './currentGame';
 
 export default function Table (props) {
 
-    const [ white, setWhite ] = useState("Player One")
-    const [ black, setBlack ] = useState("Player Two")
-
+    const { playerOne, setPlayerOne } = useContext(CurrentGameContext)
+    const { playerTwo, setPlayerTwo } = useContext(CurrentGameContext)
     const { gameEnd, setGameEnd } = useContext(CurrentGameContext)
     const { activePlayer, setActivePlayer } = useContext(CurrentGameContext)
     const { selection, setSelection } = useContext(CurrentGameContext)
@@ -41,10 +40,10 @@ export default function Table (props) {
 
     return (
         <div className="table-wrap">
-            <CapturedZone player={white} />
+            <CapturedZone />
             <Board />
             { gameEnd ? <div onClick={() => resetGame()} className="new-game">new game?</div> : null }
-            <CapturedZone player={black}/>
+            {/* <CapturedZone player={playerTwo} /> */}
         </div>
     )
 }
