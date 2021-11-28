@@ -4,8 +4,8 @@ import CurrentGameContext from './currentGame';
 
 export default function App () {
   const [ newGame, setNewGame ] = useState(true)
-  const [ playerOne, setPlayerOne ] = useState("Snake Everything")
-  const [ playerTwo, setPlayerTwo ] = useState("Big Muffin")
+  const [ playerOne, setPlayerOne ] = useState("White")
+  const [ playerTwo, setPlayerTwo ] = useState("Black")
   const [ activePlayer, setActivePlayer ] = useState("black")
   const [ selection, setSelection ] = useState(false)
   const [ pieces, setPieces ] = useState([])
@@ -19,8 +19,10 @@ export default function App () {
   const [ pinned, setPinned ] = useState([])
   const [ gameEnd, setGameEnd ] = useState(false)
 
+
+
   return (
-    <div className='app'>
+    <div className='app' >
       <CurrentGameContext.Provider value={{ newGame, setNewGame, playerOne, setPlayerOne, playerTwo, setPlayerTwo, activePlayer, setActivePlayer, selection, setSelection, pieces, setPieces, locations, setLocations, taken, setTaken, underAttack, setUnderAttack, castled, setCastled, inCheck, setInCheck, assassinAttempts, setAssassinAttempts, moving, setMoving, pinned, setPinned, gameEnd, setGameEnd }}>
         {/* <h1 className={ activePlayer === "white" ? "player-one main-heading" : "player-two main-heading" }>{activePlayer === "white" ? `${playerOne}`.toUpperCase() : activePlayer === "black" ? `${playerTwo}`.toUpperCase() : null }'S TURN</h1> */}
         <Table />

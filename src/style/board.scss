@@ -1,6 +1,6 @@
 ﻿.game-board {
-    min-width: 93vmin;
-    min-height: 93vmin;
+    min-width: 92vmin;
+    min-height: 92vmin;
     display: grid;
     justify-content: center;
     align-items: center;
@@ -46,4 +46,19 @@
 
 button {
     margin-bottom: .5rem;
+}
+
+.turn-info {
+    display: none;
+}
+
+.in-check {
+    color: $warning;
+}
+
+.game-end {
+    display: flex;
+    flex-direction: column;
+    font-size: 4.5rem;
+    color: $warning;
 }

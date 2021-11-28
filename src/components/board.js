@@ -153,10 +153,10 @@ export default function Board (props) {
             })
             if(movablePieces[0] === undefined) {
                 if(activePlayer === "black" && inCheck[1] === "black") {
-                    setGameEnd(`Checkmate. White wins.`)
+                    setGameEnd(["checkmate", "white"])
                 }
                 if(activePlayer === "white" && inCheck[0] === "white") {
-                    setGameEnd(`Checkmate. Black wins.`)
+                    setGameEnd(["checkmate", "black"])
                 }
             } else {
                 console.log("movable pieces while in check:", movablePieces, inCheck)

@@ -24,10 +24,10 @@ export default function Ghost(props) {
     }
 
     const determineClassName = () => {
-        const first = capture ? "capture" : null;
-        const second = castle ? "castle" : null;
-        const third = promote ? "promote" : null;
-        const fourth = "ghost";
+        const first = capture ? `${team}-capture` : null;
+        const second = castle ? `${team}-castle` : null;
+        const third = promote ? `${team}-promote` : null;
+        const fourth = `${team}-ghost`;
         const allClasses = `${first} ${second} ${third} ${fourth}`
         return(allClasses)
     }

@@ -2,7 +2,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import CurrentGameContext from './currentGame';
-import { faTruckMoving } from '@fortawesome/free-solid-svg-icons';
 
 export default function CapturedZone(props) {
 
@@ -51,11 +50,15 @@ export default function CapturedZone(props) {
         playerTaken.forEach((pc) => {
             if(pc[1] === "black") {
                 renderedOne.push(
-                    <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
+                    <div className="taken-wrapper" style={{color: `${pc[1]}`}} >
+                        <FontAwesomeIcon className="taken" icon={pc[0]}></FontAwesomeIcon>
+                    </div>
                 )
             } else if(pc[1] === "white") {
                 renderedTwo.push(
-                    <FontAwesomeIcon className="taken" style={{color: `${pc[1]}`}} icon={pc[0]}></FontAwesomeIcon>
+                    <div className="taken-wrapper" style={{color: `${pc[1]}`}} >
+                        <FontAwesomeIcon className="taken" icon={pc[0]}></FontAwesomeIcon>
+                    </div>
                 )
             }
         })
@@ -65,34 +68,54 @@ export default function CapturedZone(props) {
 
     return (
         <div className={ active === playerTwo ? "player-two-captured captured-zone" : "player-one-captured captured-zone" }>
+            <h1 className={ active === playerOne ? "player-one single-captured captured" : active === playerTwo ? "player-two single-captured captured" : null }>Captured:</h1>
 
-            <div className={ active === playerOne ? "player-one one-active active-details details" : active === playerTwo ? "player-two two-active active-details details" : null }>
+            <div className="details-wrap" >
 
-                <div className="on-turn" >On turn:</div>
 
-                <div className="nameplate">{active}</div>
+                <div className={ active === playerOne ? "player-one one-active active-details details" : active === playerTwo ? "player-two two-active active-details details" : null }>
 
-                { gameEnd ? <div className="game-end">{`${gameEnd}`.toUpperCase()}</div> : inCheck[0] === "white" || inCheck[1] === "black" ? <div className="in-check">CHECK!</div> : <div className="in-check"></div> }
+                    <div className="nameplate">
+                        { gameEnd ?
+                        <div className="game-end">
+                            <div>{`${gameEnd[0]}.`.toUpperCase()}</div>
+                            <div>{`${gameEnd[1]} wins.`.toUpperCase()}</div>
+                        </div>
+                        : inCheck[0] === "white" && activePlayer === "white" || inCheck[1] === "black" && activePlayer === "black" ?
+                        <div className="in-check">
+                            CHECK!
+                        </div>
+                        : <div className={ active === playerTwo ? "player-two on-turn" : "player-one on-turn" } >{active}'s move.</div>
+                        }
+                        { gameEnd ? null : <h1 className={ active === playerOne ? "player-one captured" : active === playerTwo ? "player-two captured" : null }>Captured:</h1>}
+                    </div>
 
-                <div className="captures">
 
-                    <h1 className={ active === playerOne ? "player-one captured" : active === playerTwo ? "player-two captured" : null }>Captured:</h1>
 
-                    {capturesOne}
 
+                    <div className="captures active-captures">
+
+
+                        { active === playerOne ? capturesOne : capturesTwo }
+
+                    </div>
                 </div>
-            </div>
 
-            <div className={ inactive === playerOne ? "player-one inactive-details details" : inactive === playerTwo ? "player-two inactive-details details" : null }>
+                <div className="divider" />
 
-                <div className="nameplate">{inactive}</div>
+                <div className={ inactive === playerOne ? "player-one inactive-details details" : inactive === playerTwo ? "player-two inactive-details details" : null }>
 
-                <div className="captures">
+                    <div className="nameplate">
+                        {inactive}
+                        <h1 className={ inactive === playerOne ? "player-one captured" : inactive === playerTwo ? "player-two captured" : null }>Captured:</h1>
+                    </div>
 
-                    <h1 className={ inactive === playerOne ? "player-one captured" : inactive === playerTwo ? "player-two captured" : null }>Captured:</h1>
+                    <div className="captures">
 
-                    {capturesTwo}
 
+                        { inactive === playerOne ? capturesOne : capturesTwo }
+
+                    </div>
                 </div>
             </div>
         </div>

@@ -803,6 +803,12 @@ export default function Piece (props) {
                 attacking.push(mv)
             })
         } else if(typeToMove === faChessRook) {
+            friendlyFire.forEach((mv) => {
+                attacking.push(mv)
+            })
+            usableMoves.forEach((mv) => {
+                attacking.push(mv)
+            })
             moveRook();
         } else {
             friendlyFire.forEach((mv) => {
@@ -1015,6 +1021,13 @@ export default function Piece (props) {
                         }
                     })
                 }
+                if(pinned !== undefined) {
+                    pinned.forEach((pin, index, array) => {
+                        if(pin[4] === pc[2]) {
+                            array.splice(index, 1)
+                        }
+                    })
+                }
             }
         })
     }
@@ -1047,10 +1060,10 @@ export default function Piece (props) {
             onClick={ activePlayer === team ? () => toggleSelected() : null }
             onMouseOver={ !selection ? activePlayer === team ? () => handleHover() : null : null }
             onMouseOut={ activePlayer === team ? () => handleUnhover() : null }
-            className={ choosingPromotion ? "getting-promoted chess-piece" : hover ? ( selected ? "hovered-piece selected-piece chess-piece" : "hovered-piece chess-piece" ) : selected ? "selected-piece chess-piece" : "chess-piece" }
+            className={ choosingPromotion ? `${team}-getting-promoted chess-piece ${team}-piece` : hover ? ( selected ? `${team}-hovered-piece ${team}-selected-piece chess-piece ${team}-piece` : `${team}-hovered-piece chess-piece ${team}-piece` ) : selected ? `${team}-selected-piece chess-piece ${team}-piece` : `chess-piece ${team}-piece` }
             style={{
                 gridArea: currentPosition,
-                color: team,
+
                 }}>
                 <FontAwesomeIcon
                 icon={ pieceType ? pieceType : type }
